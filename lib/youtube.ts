@@ -164,19 +164,153 @@ function parseFeed(xml: string): Video[] {
   return out;
 }
 
-/** Recent uploads. Empty array on failure — the site never breaks on a feed outage. */
+const BROWSER_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+
+const CATALOG_HEADERS: Record<string, string> = {
+  "user-agent": BROWSER_UA,
+  "accept-language": "en-US,en;q=0.9",
+  cookie: "CONSENT=YES+cb; PREF=hl=en&gl=US",
+};
+
+/** Recent uploads, with the public channel catalog as an API-key-free fallback. */
 export async function fetchVideos(): Promise<Video[]> {
+  const rss = await fetchViaRss();
+  return rss.length > 0 ? rss : fetchViaChannelCatalog();
+}
+
+async function fetchViaRss(): Promise<Video[]> {
   const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${person.youtubeChannelId}`;
   try {
     const res = await fetch(url, {
-      next: { revalidate: 3600 },
-      headers: { "user-agent": "jasonwheeler-site/2.0" },
-      signal: AbortSignal.timeout(6000),
+      cache: "no-store",
+      headers: { "user-agent": BROWSER_UA, "accept-language": "en-US,en;q=0.9" },
+      signal: AbortSignal.timeout(15000),
     });
     if (!res.ok) return [];
     return parseFeed(await res.text());
   } catch {
     return [];
+  }
+}
+
+/**
+ * Reads only IDs published by this channel, then applies the same denylist and
+ * fail-closed classifier as RSS. Supports both current and legacy YouTube HTML.
+ */
+async function fetchViaChannelCatalog(): Promise<Video[]> {
+  try {
+    const url = `https://www.youtube.com/channel/${person.youtubeChannelId}/videos?hl=en&gl=US`;
+    const res = await fetch(url, {
+      cache: "no-store",
+      headers: CATALOG_HEADERS,
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) return [];
+
+    const found = extractCatalogItems(await res.text()).slice(0, 30);
+    if (found.length === 0) return [];
+
+    const hydrated = await Promise.all(
+      found.map(async (item) => ({
+        id: item.id,
+        title: item.title || (await oembedTitle(item.id)),
+      })),
+    );
+
+    const out: Video[] = [];
+    const seen = new Set<string>();
+    for (const { id, title } of hydrated) {
+      if (!id || !title || seen.has(id)) continue;
+      seen.add(id);
+      if (isDenied({ id, title, description: "" })) continue;
+      const { classification, categories, qualifying } = classify(title, "");
+      out.push({
+        id,
+        title,
+        published: "",
+        description: "",
+        thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+        url: `https://www.youtube.com/watch?v=${id}`,
+        categories,
+        classification,
+        qualifying,
+      });
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+
+function extractCatalogItems(html: string): { id: string; title: string }[] {
+  const items: { id: string; title: string }[] = [];
+  const seen = new Set<string>();
+
+  // Current YouTube catalog shape (lockupViewModel).
+  for (const chunk of html.split('"lockupViewModel"').slice(1)) {
+    const idMatch = chunk.match(
+      /"contentId":"([\w-]{11})","contentType":"LOCKUP_CONTENT_TYPE_VIDEO"/,
+    );
+    if (!idMatch) continue;
+
+    const id = idMatch[1];
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const titleMatch = chunk.match(
+      /"lockupMetadataViewModel":\{"title":\{"content":"((?:[^"\\]|\\.)*)"/,
+    );
+    items.push({ id, title: titleMatch ? decodeJsonString(titleMatch[1]) : "" });
+  }
+
+  // Older YouTube catalog shape retained for compatibility.
+  for (const chunk of html.split('"videoRenderer"').slice(1)) {
+    const idMatch = chunk.match(/"videoId":"([\w-]{11})"/);
+    if (!idMatch) continue;
+
+    const id = idMatch[1];
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const titleMatch =
+      chunk.match(/"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"/) ||
+      chunk.match(/"title":\{"simpleText":"((?:[^"\\]|\\.)*)"/);
+    items.push({ id, title: titleMatch ? decodeJsonString(titleMatch[1]) : "" });
+  }
+
+  return items;
+}
+
+function decodeJsonString(raw: string): string {
+  try {
+    return JSON.parse(`"${raw}"`) as string;
+  } catch {
+    return raw
+      .replace(/\\u0026/g, "&")
+      .replace(/\\"/g, '"')
+      .replace(/\\\\/g, "\\")
+      .trim();
+  }
+}
+
+async function oembedTitle(id: string): Promise<string> {
+  try {
+    const res = await fetch(
+      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`,
+      {
+        cache: "no-store",
+        headers: { "user-agent": BROWSER_UA },
+        signal: AbortSignal.timeout(8000),
+      },
+    );
+    if (!res.ok) return "";
+    const data: unknown = await res.json();
+    if (data && typeof data === "object" && "title" in data) {
+      const title = (data as { title?: unknown }).title;
+      return typeof title === "string" ? title : "";
+    }
+    return "";
+  } catch {
+    return "";
   }
 }
 
