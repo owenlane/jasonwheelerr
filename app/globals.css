@@ -1,0 +1,200 @@
+@import "tailwindcss";
+
+@theme {
+  /* V2 token roles. Light default is higher authority than any token name. */
+  --color-field: #e8e6df;
+  --color-field-2: #dedbd1;
+  --color-ink: #1e1b14;
+  --color-media: #11100b;
+  --color-accent: #a89c8a;
+  --color-support: #7b5e41;
+
+  --font-display: "Michroma", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --ink-70: color-mix(in oklab, #1e1b14 72%, #e8e6df);
+    --ink-52: color-mix(in oklab, #1e1b14 54%, #e8e6df);
+  }
+
+  * {
+    border-color: var(--color-accent);
+    min-width: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    /* No smooth scroll: it fights reload position restoration. */
+    scroll-behavior: auto;
+  }
+
+  body {
+    background-color: var(--color-field);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.06;
+    text-wrap: balance;
+  }
+
+  p { text-wrap: pretty; }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+
+  ::selection { background: var(--color-ink); color: var(--color-field); }
+
+  input, select, textarea, button { font: inherit; color: inherit; }
+}
+
+@layer components {
+  /* Technical micro-label: identifies content function only.
+     Never a numbered section prefix — no 01 / 02 / 03 indexing. */
+  .microlabel {
+    font-family: var(--font-display);
+    font-size: 0.5625rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-support);
+  }
+  .measure { max-width: 62ch; }
+  .measure-tight { max-width: 46ch; }
+  .quiet { color: var(--ink-70); }
+  .quieter { color: var(--ink-52); }
+  .hairline { border-top: 1px solid color-mix(in oklab, var(--color-accent) 75%, transparent); }
+  .link-line {
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-underline-offset: 0.3em;
+    text-decoration-thickness: 1px;
+    transition: text-decoration-color 150ms ease;
+  }
+  .link-line:hover { text-decoration-color: currentColor; }
+
+  /* CINEMATIC TITLE CARD
+     Authorised by the final revision as the homepage service-routing treatment.
+     Architectural, square, thin-ruled — a selective structural glass surface,
+     not broad glassmorphism. Dark media field, taupe rule, hover lift + sheen. */
+  .title-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+      linear-gradient(155deg, color-mix(in oklab, var(--color-media) 92%, #000) 0%, var(--color-media) 58%, #17140d 100%);
+    border: 1px solid color-mix(in oklab, var(--color-accent) 40%, transparent);
+    transition:
+      transform 320ms cubic-bezier(0.2, 0.7, 0.25, 1),
+      border-color 320ms ease,
+      box-shadow 320ms ease;
+    will-change: transform;
+  }
+  /* Selective structural glass wash — sits above the field, below the content. */
+  .title-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(120% 90% at 12% 0%, color-mix(in oklab, var(--color-accent) 22%, transparent) 0%, transparent 55%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 40%);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    opacity: 0.9;
+    transition: opacity 320ms ease;
+  }
+  /* Light sheen that sweeps across on hover. */
+  .title-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -30%;
+    z-index: 1;
+    height: 100%;
+    width: 45%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+    transform: translateX(-40%) skewX(-12deg);
+    opacity: 0;
+    transition: transform 620ms cubic-bezier(0.2, 0.7, 0.25, 1), opacity 300ms ease;
+    pointer-events: none;
+  }
+  .title-card:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in oklab, var(--color-accent) 85%, transparent);
+    box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.7);
+  }
+  .title-card:hover::before { opacity: 1; }
+  .title-card:hover::after { transform: translateX(320%) skewX(-12deg); opacity: 1; }
+  .title-card:focus-visible {
+    transform: translateY(-4px);
+    border-color: var(--color-field);
+  }
+  .title-card .card-rule {
+    transition: width 360ms cubic-bezier(0.2, 0.7, 0.25, 1), background-color 360ms ease;
+  }
+  .title-card:hover .card-rule,
+  .title-card:focus-visible .card-rule {
+    width: 3.5rem;
+    background-color: var(--color-field);
+  }
+  .title-card .card-arrow {
+    transition: transform 320ms cubic-bezier(0.2, 0.7, 0.25, 1), opacity 320ms ease;
+  }
+  .title-card:hover .card-arrow,
+  .title-card:focus-visible .card-arrow {
+    transform: translateX(0.35rem);
+    opacity: 1;
+  }
+
+  /* Button micro-interaction: a quiet sheen so every control does something. */
+  .cta-sheen { position: relative; overflow: hidden; isolation: isolate; }
+  .cta-sheen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.2) 50%, transparent 80%);
+    transform: translateX(-120%);
+    transition: transform 620ms cubic-bezier(0.2, 0.7, 0.25, 1);
+    pointer-events: none;
+  }
+  .cta-sheen:hover::after { transform: translateX(120%); }
+
+  /* Pull quote — a strong review lifted into the page flow. */
+  .pull-quote {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    line-height: 1.28;
+  }
+}
+
+/* Restrained entrance reveal. Never gates content or CTAs. */
+@keyframes rise {
+  from { opacity: 0; transform: translate3d(0, 0.7rem, 0); }
+  to { opacity: 1; transform: none; }
+}
+.rise { animation: rise 500ms cubic-bezier(0.2, 0.7, 0.25, 1) both; }
+.rise-2 { animation-delay: 80ms; }
+.rise-3 { animation-delay: 160ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
