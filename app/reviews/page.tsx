@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import CinematicSection from "@/components/v3/CinematicSection";
-import { Actions, Body, Btn, ContactTag, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
+import PhotoStill from "@/components/v3/PhotoStill";
+import { H1, PhotoInner } from "@/components/v3/sections";
+import { Rise } from "@/components/v3/motion";
 import { reviews } from "@/lib/site";
 import { frames, palette } from "@/lib/v3";
 
@@ -11,40 +12,27 @@ export const metadata: Metadata = {
   openGraph: { title: "Reviews | Jason Wheeler", description: "What clients say about working with Jason Wheeler." },
 };
 
+/** JWV3-FINAL-2 R86–R95: one red-rock section — heading, then both reviews in white cards. */
 export default function ReviewsPage() {
   return (
-    <>
-      <CinematicSection frames={frames.reviews} hue={palette.reviews.hue} align="C" priority>
-        <PhotoInner>
-          <div className="v3-text">
-            <H1>{"What clients say."}</H1>
-          </div>
-        </PhotoInner>
-      </CinematicSection>
-
-      <Solid colors={palette.reviews.s2} align="L">
-        {reviews.map((r) => (
-          <figure key={r.id} className="v3-review">
-            <blockquote>{r.quote}</blockquote>
-            <figcaption>
-              <p className="font-semibold">{r.author}</p>
-              <p>{r.context}</p>
-              <p>{r.date}</p>
-            </figcaption>
-          </figure>
-        ))}
-      </Solid>
-
-      <Solid colors={palette.reviews.s3} align="C">
+    <PhotoStill frame={frames.reviews} hue={palette.reviews.hue} align="C" priority className="v3-reviews">
+      <PhotoInner>
         <div className="v3-text">
-          <ContactTag />
-          <H2>{"Get in touch with me"}</H2>
-          <Body>{"Tell me what you have in mind."}</Body>
-          <Actions>
-            <Btn href="/contact">{"Get in touch with me"}</Btn>
-          </Actions>
+          <H1>{"What clients say."}</H1>
         </div>
-      </Solid>
-    </>
+        <Rise className="v3-review-grid">
+          {reviews.map((r) => (
+            <figure key={r.id} className="v3-review">
+              <blockquote>{r.quote}</blockquote>
+              <figcaption>
+                <p className="v3-review-author">{r.author}</p>
+                <p>{r.context}</p>
+                <p>{r.date}</p>
+              </figcaption>
+            </figure>
+          ))}
+        </Rise>
+      </PhotoInner>
+    </PhotoStill>
   );
 }
