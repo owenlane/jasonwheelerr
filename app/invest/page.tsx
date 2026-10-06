@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import CinematicSection from "@/components/v3/CinematicSection";
-import { Actions, Body, Btn, ContactTag, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
+import PhotoStill from "@/components/v3/PhotoStill";
+import { Actions, Body, Btn, Group, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
+import { Rise } from "@/components/v3/motion";
 import { CinematicVideo } from "@/components/VideoPlayer";
 import VideoEmpty from "@/components/VideoEmpty";
 import { person } from "@/lib/site";
@@ -31,26 +33,34 @@ export default async function InvestPage() {
         </PhotoInner>
       </CinematicSection>
 
-      <Solid colors={palette.invest.s2} align="R">
-        <div className="v3-text">
-          <H2>{"What do you want the property to do?"}</H2>
-          <Body>
-            {
-              "A property to hold and a house to renovate for resale call for different searches. Your budget, timing, and the work you want to take on help define what fits."
-            }
-          </Body>
-        </div>
-      </Solid>
+      <PhotoStill frame={frames.invest2} hue={palette.invest.hue} align="C" className="v3-invest2">
+        <PhotoInner>
+          <div className="v3-text">
+            <H2>{"What do you want the property to do?"}</H2>
+            <Group>
+              <Body>
+                {
+                  "A property to hold and a house to renovate for resale call for different searches. Your budget, timing, and the work you want to take on help define what fits."
+                }
+              </Body>
+            </Group>
+          </div>
+        </PhotoInner>
+      </PhotoStill>
 
-      <Solid colors={palette.invest.s3} align="L">
+      <Solid colors={{ ...palette.invest.s3, hue: "21 42 50" }} align="L">
         <div className="v3-text">
           <H2>{"See the condition on film."}</H2>
-          <Body>{"Property videos show the condition when filmed."}</Body>
+          <Group>
+            <Body>{"Property videos show the condition when filmed."}</Body>
+          </Group>
         </div>
         {videos.length ? (
           <div className="v3-video-grid">
-            {videos.map((v) => (
-              <CinematicVideo key={v.id} video={v} />
+            {videos.map((v, i) => (
+              <Rise key={v.id} delay={Math.min(180, i * 60)}>
+                <CinematicVideo video={v} />
+              </Rise>
             ))}
           </div>
         ) : (
@@ -61,14 +71,15 @@ export default async function InvestPage() {
         </Actions>
       </Solid>
 
-      <Solid colors={palette.invest.s4} align="C">
+      <Solid colors={palette.invest.s4} align="C" className="v3-cta">
         <div className="v3-text">
-          <ContactTag />
           <H2>{"Tell me what you want to buy."}</H2>
-          <Body>{"Tell me the area, budget, intended use, and how much work you’re comfortable taking on."}</Body>
-          <Actions>
-            <Btn href="/contact?intent=investor">{"Get in touch with me"}</Btn>
-          </Actions>
+          <Group>
+            <Body>{"Tell me the area, budget, intended use, and how much work you’re comfortable taking on."}</Body>
+            <Actions>
+              <Btn href="/contact?intent=investor">{"Get in touch with me"}</Btn>
+            </Actions>
+          </Group>
         </div>
       </Solid>
     </>
