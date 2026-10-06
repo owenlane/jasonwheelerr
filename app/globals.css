@@ -357,7 +357,7 @@
 
 /* Reviews/Contact direct details */
 .v3-direct { margin-top:2rem; display:grid; gap:1rem; list-style:none; padding:0; }
-.v3-direct a { font-size:1.125rem; font-weight:600; }
+.v3-direct a { font-size:1.125rem; font-weight:600; overflow-wrap:anywhere; }
 .v3-brokerage { margin-top:2.5rem; display:grid; gap:.35rem; }
 
 /* ------------------------------------------------------------------------
