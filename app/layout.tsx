@@ -10,7 +10,6 @@ import "@fontsource/ibm-plex-mono/500.css";
 import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import MobileContactBar from "@/components/MobileContactBar";
 import { brokerage, person, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -72,17 +71,16 @@ const structuredData = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{__html:`try{document.documentElement.dataset.theme=localStorage.getItem("jw-theme")==="dark"?"dark":"light"}catch(e){}`}}/></head>
+    <html lang="en" data-scroll-behavior="smooth">
+      {/* JWV3-FINAL-2 R14: light is the only theme. Drop the legacy preference key without reading it. */}
+      <head><script dangerouslySetInnerHTML={{__html:`try{localStorage.removeItem("jw-theme")}catch(e){}`}}/></head>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <SiteHeader />
-        {/* Bottom padding clears the mobile sticky contact bar. */}
-        <main id="main" className="pb-14 xl:pb-0">
+        <main id="main">
           {children}
         </main>
         <SiteFooter />
-        <MobileContactBar />
       </body>
     </html>
   );

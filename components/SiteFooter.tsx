@@ -107,8 +107,6 @@ export default function SiteFooter() {
           </p>
         </div>
       </Shell>
-      {/* Clears the mobile sticky contact bar. */}
-      <div aria-hidden="true" className="h-14 xl:hidden" />
     </footer>
   );
 }
