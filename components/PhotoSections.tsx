@@ -3,7 +3,7 @@ import { group, srcSet, fallbackSrc, type GroupKey } from "@/lib/images";
 import { Cta, Display, Shell } from "./primitives";
 
 export type PhotoRef = { group: GroupKey; index: number };
-const palettes: Record<GroupKey, string> = { strip:"night",charleston:"winter",calico:"desert",water:"water",arena:"night",park:"park",speedway:"speedway" };
+const palettes: Record<GroupKey, string> = { strip:"night",charleston:"winter",calico:"desert",water:"water",arena:"night",speedway:"speedway" };
 
 /** Colors follow the actual source: daylight, evening, water, rock or snow. */
 export function photoPalette(photo: PhotoRef) {
@@ -18,7 +18,6 @@ export function photoColors(photo: PhotoRef): CSSProperties {
     charleston:[["#c5d0dc","#5ec4e0","#7b6bb0"],["#8a9aab","#c9b8f0","#1c4e7a"],["#5ec4e0","#c5d0dc","#3ee0d2"]],
     calico:[["#3f6b2d","#e8b84a","#c45c26"],["#c45c26","#7ec8f0","#1e3b1a"],["#b8431a","#d9a066","#2f6f4e"]],
     arena:[["#2bb3c7","#e6c38a","#4fae5b"],["#ff2d8a","#f5c542","#6b2d8b"],["#3b82f6","#f5c542","#00e5ff"],["#b07a43","#f2d5a0","#7a2e3a"]],
-    park:[["#4fae5b","#c45c26","#7ec8f0"],["#2bb3c7","#e8b84a","#c45c26"]],
     water:[["#5c6568","#7ec8f0","#2f6f4e"],["#c45c26","#e8b84a","#0e6e7a"],["#00a8c6","#e6c38a","#1c4e7a"]],
   };
   const values = variations[photo.group]?.[photo.index];

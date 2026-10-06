@@ -21,7 +21,6 @@ const GROUPS = [
   { dir: "calico", match: /^calico-basin-/ },
   { dir: "water", match: /^(hoover-dam|bypass-bridge|lake-mead)-/ },
   { dir: "arena", match: /^(t-mobile-arena|allegiant-stadium)-/ },
-  { dir: "park", match: /^(mesa-park|fox-hill-park)-/ },
   { dir: "speedway", match: /^las-vegas-motor-speedway-/ },
   // V3: Home §4 aerials A/B and the two supplied Sell photographs.
   { dir: "home", match: /^home-aerial-/ },
@@ -55,7 +54,6 @@ const AVIF_QUALITY = {
   "calico-basin-1-cinematic-backdrop": 44,            // sandstone grain
   "calico-basin-2-cinematic-backdrop": 44,
   "calico-basin-3-cinematic-backdrop": 46,
-  "fox-hill-park-1-cinematic-backdrop": 46,           // turf + foliage
   "las-vegas-motor-speedway-1-backdrop": 46,          // dense aerial detail
 };
 

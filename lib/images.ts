@@ -42,7 +42,6 @@ export type GroupKey =
   | "calico"
   | "water"
   | "arena"
-  | "park"
   | "speedway";
 
 export type ImageGroup = {
@@ -265,33 +264,6 @@ const GROUPS: Record<GroupKey, ImageGroup> = {
         received: true,
         blurDataURL:
           "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADwAQCdASoQAAkABABoJQBOgCHiFsFKWgAA/lvZlb8NjoMfTPMxEmN4pMabWHoNlAkHHO/dSanrtAb7llxCs/NzIAA=",
-      },
-    ],
-  },
-  park: {
-    scene: "park",
-    label: "Mesa Park and Fox Hill Park",
-    dir: "park",
-    frames: [
-      {
-        base: "mesa-park-2-cinematic-backdrop",
-        alt:
-          "Aerial view of baseball diamonds and red clay infields at Mesa Park, with lawns, trees, and shaded structures.",
-        caption: "Mesa Park",
-        focal: "50% 55%",
-        received: true,
-        blurDataURL:
-          "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAAAQAgCdASoQAAkABABoJYgCdAEQ4mgQxvgAAP6ClHtMDuTAG/VEiBSUt81qbjFNnb3ggWBctJYq6ibn0Lvpyfo62+ogAA==",
-      },
-      {
-        base: "fox-hill-park-1-cinematic-backdrop",
-        alt:
-          "Orange climbing frames on blue playground surfacing at Fox Hill Park, with lawns and mountains behind.",
-        caption: "Fox Hill Park",
-        focal: "50% 50%",
-        received: true,
-        blurDataURL:
-          "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAwAgCdASoQAAkABABoJZACdH8AGEVbiZAAQAD+J7gdpbnBkT+RiyqCNJn2180qfKb3Ooc2pdAbfUgAHjO4+mJJ0oZARvk2+AaAAA==",
       },
     ],
   },
