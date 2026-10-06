@@ -195,10 +195,11 @@
 .v3-bio { display:grid; gap:2rem; max-width:70rem; margin-inline:auto; text-align:left; }
 .v3-bio picture { display:block; justify-self:center; width:100%; max-width:27.5rem; }
 .v3-bio img { display:block; width:100%; height:auto; aspect-ratio:1245 / 1556; }
-.v3-bio .v3-body { margin-top:0; max-width:none; }
+.v3-bio .v3-body { margin-top:0; max-width:60ch; justify-self:center; }
 @media (min-width:900px) {
   .v3-bio { grid-template-columns:minmax(0,42fr) minmax(0,58fr); gap:4rem; align-items:start; }
   .v3-bio picture { justify-self:start; }
+  .v3-bio .v3-body { max-width:none; justify-self:stretch; }
   .v3-bio .v3-body { margin-top:calc((1em - 1lh) / 2); }
 }
 
@@ -252,3 +253,11 @@
 .v3-direct { margin-top:2rem; display:grid; gap:1rem; list-style:none; padding:0; }
 .v3-direct a { font-size:1.125rem; font-weight:600; }
 .v3-brokerage { margin-top:2.5rem; display:grid; gap:.35rem; }
+
+/* Below xl, <main> reserves 3.5rem (pb-14) for the fixed mobile contact bar. Let the final
+   approved section run through that space so no neutral band appears above the footer. */
+@media (max-width:1279px) {
+  main > .v3:last-child { margin-bottom:-3.5rem; }
+  main > .v3-solid:last-child { padding-bottom:calc(clamp(4rem,2.5rem + 4vw,6rem) + 3.5rem); }
+  main > .v3-home-contact:last-child { padding-bottom:calc(clamp(4rem,1.5rem + 5.5vw,6.5rem) + 3.5rem); }
+}
