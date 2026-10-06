@@ -39,7 +39,7 @@ export function CinematicVideo({ video, priority = false }: { video: Video; prio
               decoding="async"
               className="v3-thumb h-full w-full object-cover"
             />
-            <span className="absolute inset-0 bg-gradient-to-t from-media/75 via-media/10 to-transparent" />
+            <span className="absolute inset-0 bg-gradient-to-t from-media/90 via-media/35 to-transparent" />
             <span className="absolute bottom-5 left-5 flex items-center gap-3">
               <span className="play-mark flex h-11 w-11 items-center justify-center">
                 <svg viewBox="0 0 12 14" aria-hidden="true" className="h-3.5 w-3.5 fill-current">
