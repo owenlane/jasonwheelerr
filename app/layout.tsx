@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
-import "@fontsource/michroma";
-import "@fontsource-variable/manrope";
+// V2 typefaces. Archivo carries the display weight the V1 Michroma treatment
+// lacked; IBM Plex Sans and Mono handle body copy and the numeric spec
+// treatment. Both are open-licensed and self-hosted, so no third-party font
+// request is made at runtime.
+import "@fontsource-variable/archivo";
+import "@fontsource-variable/ibm-plex-sans";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
 import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -10,25 +16,25 @@ import { brokerage, person, SITE_URL } from "@/lib/site";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${person.name} — Las Vegas Real Estate | ${person.brokerage}`,
+    default: `${person.name} — Las Vegas real estate and renovations`,
     template: `%s | ${person.name}`,
   },
   description:
-    "Las Vegas real estate for buyers, sellers and investors, with walkthrough film of the actual properties. Blue Diamond Realty, Las Vegas and Southern Nevada.",
+    "Jason Wheeler. 29 years of real estate experience. Buying, selling, investing and renovation coordination in Las Vegas and Southern Nevada.",
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     siteName: `${person.name} — ${person.brokerage}`,
     locale: "en_US",
     url: SITE_URL,
-    title: `${person.name} — Las Vegas Real Estate`,
+    title: `${person.name} — Las Vegas real estate and renovations`,
     description:
-      "Buyers, sellers and investors across Las Vegas and Southern Nevada, plus property help for owners who are not here.",
+      "Buying, selling, investing and renovation coordination in Las Vegas. 29 years of real estate experience.",
   },
   twitter: {
     card: "summary_large_image",
-    title: `${person.name} — Las Vegas Real Estate`,
-    description: "Las Vegas real estate with walkthrough film of the actual properties.",
+    title: `${person.name} — Las Vegas real estate and renovations`,
+    description: "Local help for buyers, sellers, investors, and owners out of state.",
   },
   robots: { index: true, follow: true },
 };
@@ -66,7 +72,8 @@ const structuredData = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{__html:`try{document.documentElement.dataset.theme=localStorage.getItem("jw-theme")==="dark"?"dark":"light"}catch(e){}`}}/></head>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <SiteHeader />

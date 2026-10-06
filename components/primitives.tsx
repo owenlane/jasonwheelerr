@@ -27,19 +27,19 @@ export function Section({
   rule?: boolean;
 }) {
   const tones = {
-    field: "bg-field text-ink",
-    raised: "bg-field-2 text-ink",
-    media: "bg-media text-field",
+    field: "bg-surface text-on-surface",
+    raised: "bg-surface-2 text-on-surface",
+    media: "bg-surface text-on-surface",
   };
   return (
     <section id={id} className={`${tones[tone]} ${className}`}>
       <Shell>
         <div
           className={`py-16 sm:py-20 lg:py-24 ${
-            rule ? (tone === "media" ? "border-t border-white/15" : "hairline") : ""
+            rule ? (tone === "media" ? "border-t border-line" : "hairline") : ""
           }`}
         >
-          {label && <p className="microlabel mb-8">{label}</p>}
+          {label && <p className="mb-6 text-center text-[0.9375rem] font-medium quiet">{label}</p>}
           {children}
         </div>
       </Shell>
@@ -51,18 +51,24 @@ export function Display({
   children,
   level = 2,
   className = "",
+  id,
 }: {
   children: ReactNode;
   level?: 1 | 2 | 3;
   className?: string;
+  id?: string;
 }) {
   const Tag = (`h${level}` as unknown) as "h2";
   const sizes = {
-    1: "text-[2rem] leading-[1.04] sm:text-[3.25rem] lg:text-[4rem]",
-    2: "text-[1.6rem] leading-[1.08] sm:text-[2.25rem] lg:text-[2.75rem]",
-    3: "text-lg sm:text-xl",
+    1: "text-[2.125rem] leading-[1.06] sm:text-[3rem] lg:text-[3.75rem]",
+    2: "text-[1.625rem] leading-[1.14] sm:text-[2.125rem] lg:text-[2.5rem]",
+    3: "text-[1.3125rem] leading-[1.2]",
   };
-  return <Tag className={`${sizes[level]} ${className}`}>{children}</Tag>;
+  return (
+    <Tag id={id} className={`${sizes[level]} ${className}`}>
+      {children}
+    </Tag>
+  );
 }
 
 export function Body({ children, className = "" }: { children: ReactNode; className?: string }) {
@@ -83,13 +89,14 @@ export function Cta({
   className?: string;
   external?: boolean;
 }) {
-  const base =
-    "cta-sheen inline-flex min-h-12 items-center justify-center px-7 text-[0.8125rem] font-semibold uppercase tracking-[0.12em] transition-colors duration-150";
+  // V2: sentence case, no tracked-out uppercase. The pill radius is the one
+  // rounded shape in the system; photography stays square-cornered.
+  const base = "btn";
   const variants = {
-    primary: "bg-ink text-field hover:bg-support",
-    outline: "border border-ink text-ink hover:bg-ink hover:text-field",
-    onMedia: "border border-field/40 text-field hover:bg-field hover:text-ink",
-    quiet: "border border-accent text-ink hover:border-ink",
+    primary: "btn-primary",
+    outline: "btn-secondary",
+    onMedia: "btn-secondary",
+    quiet: "btn-secondary",
   };
   const cls = `${base} ${variants[variant]} ${className}`;
   if (external) {
@@ -121,11 +128,11 @@ export function DataRows({
         <div
           key={row.term}
           className={`grid gap-x-8 gap-y-1 border-t py-4 sm:grid-cols-[14rem_minmax(0,1fr)] ${
-            tone === "media" ? "border-white/15" : "border-accent/60"
+            tone === "media" ? "border-line" : "border-line"
           }`}
         >
-          <dt className="microlabel pt-1">{row.term}</dt>
-          <dd className={`measure text-[0.9375rem] leading-relaxed ${tone === "media" ? "text-field/75" : "quiet"}`}>
+          <dt className="pt-1 text-[0.9375rem] font-medium">{row.term}</dt>
+          <dd className={`measure text-[0.9375rem] leading-relaxed ${tone === "media" ? "quiet" : "quiet"}`}>
             {row.detail}
           </dd>
         </div>
@@ -139,9 +146,9 @@ export function Steps({ steps, tone = "field" }: { steps: { name: string; detail
   return (
     <ol className="mt-10 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
       {steps.map((s) => (
-        <li key={s.name} className={`border-t pt-4 ${tone === "media" ? "border-white/20" : "border-ink"}`}>
-          <h3 className="font-display text-[0.8125rem] uppercase tracking-[0.1em]">{s.name}</h3>
-          <p className={`mt-3 text-[0.9375rem] leading-relaxed ${tone === "media" ? "text-field/70" : "quiet"}`}>
+        <li key={s.name} className={`border-t pt-4 ${tone === "media" ? "border-line" : "border-ink"}`}>
+          <h3 className="font-display text-[1.0625rem] font-semibold">{s.name}</h3>
+          <p className={`mt-3 text-[0.9375rem] leading-relaxed ${tone === "media" ? "quiet" : "quiet"}`}>
             {s.detail}
           </p>
         </li>
@@ -153,7 +160,7 @@ export function Steps({ steps, tone = "field" }: { steps: { name: string; detail
 export function ScopeNote({ items, label }: { items: readonly string[]; label: string }) {
   return (
     <aside className="mt-12 border-l border-support pl-6">
-      <p className="microlabel">{label}</p>
+      <p className="text-[0.9375rem] font-medium">{label}</p>
       <ul className="mt-4 space-y-2.5">
         {items.map((item) => (
           <li key={item} className="measure text-[0.875rem] leading-relaxed quieter">
@@ -195,16 +202,14 @@ export function PullQuote({
 }) {
   const onMedia = tone === "media";
   return (
-    <figure className={`border-l-2 pl-6 sm:pl-8 ${onMedia ? "border-field/40" : "border-support"}`}>
+    <figure className={`border-l-2 pl-6 sm:pl-8 ${onMedia ? "border-current" : "border-support"}`}>
       <Stars rating={5} tone={tone} />
       <blockquote
         className={`pull-quote mt-4 text-[1.25rem] sm:text-[1.5rem] ${onMedia ? "text-field" : "text-ink"}`}
       >
         “{quote}”
       </blockquote>
-      <figcaption className={`microlabel mt-5 ${onMedia ? "text-field/70" : ""}`}>
-        {author} · Verified client review
-      </figcaption>
+      <figcaption className="mt-5 text-[0.875rem] quiet">{author}</figcaption>
     </figure>
   );
 }
@@ -221,14 +226,14 @@ export function ClosingContact({
 }) {
   const href = intent ? `/contact?intent=${intent}` : "/contact";
   return (
-    <Section tone="media" label="Contact">
-      <Display level={2} className="max-w-4xl">
+    <Section tone="raised" label="Contact">
+      <Display level={2} className="mx-auto max-w-4xl text-center">
         {heading}
       </Display>
-      {children && <p className="measure mt-6 text-[1.0625rem] leading-[1.7] text-field/75">{children}</p>}
-      <div className="mt-10 flex flex-wrap gap-3">
-        <Cta href={href} variant="onMedia">
-          Contact Jason
+      {children && <p className="measure mx-auto mt-6 text-center text-[1.0625rem] leading-[1.7] quiet">{children}</p>}
+      <div className="mt-10 flex flex-wrap justify-center gap-3">
+        <Cta href={href}>
+          Get in touch with me
         </Cta>
       </div>
     </Section>

@@ -17,6 +17,8 @@ export default function InquiryForm({ initialIntent = "general" }: { initialInte
   const [phone, setPhone] = useState("");
   const [replyPreference, setReplyPreference] = useState<string>("Email");
   const [message, setMessage] = useState("");
+  const [clientLocation, setClientLocation] = useState("");
+  const [canVisit, setCanVisit] = useState("");
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [failure, setFailure] = useState("");
@@ -48,7 +50,7 @@ export default function InquiryForm({ initialIntent = "general" }: { initialInte
       const res = await fetch("/api/inquiry", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ intent, name, email, phone, replyPreference, message }),
+        body: JSON.stringify({ intent, name, email, phone, replyPreference, message, clientLocation, canVisit, company: honeypot.current?.value ?? "" }),
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -71,7 +73,7 @@ export default function InquiryForm({ initialIntent = "general" }: { initialInte
         <p className="microlabel">Received</p>
         <h3 className="mt-4 font-display text-xl">Your message is with Jason.</h3>
         <p className="measure mt-5 text-[0.9375rem] leading-relaxed quiet">
-          He answers inquiries himself, usually by your preferred method. If it is urgent, call{" "}
+          Thank you for getting in touch. You can also reach Jason at{" "}
           <a href={person.phoneHref} className="link-line text-ink">{person.phone}</a>.
         </p>
         <button
@@ -82,6 +84,8 @@ export default function InquiryForm({ initialIntent = "general" }: { initialInte
             setEmail("");
             setPhone("");
             setMessage("");
+            setClientLocation("");
+            setCanVisit("");
           }}
           className="mt-8 border-b border-ink pb-1 text-[0.75rem] font-semibold uppercase tracking-[0.14em]"
         >
@@ -92,7 +96,7 @@ export default function InquiryForm({ initialIntent = "general" }: { initialInte
   }
 
   const field =
-    "mt-3 min-h-12 w-full border bg-field px-4 py-3 text-[1rem] transition-colors focus:border-ink focus:outline-none";
+    "mt-3 min-h-12 w-full border bg-field px-4 py-3 text-[1rem] transition-colors focus:border-ink";
 
   return (
     <form onSubmit={onSubmit} noValidate className="mt-10 max-w-3xl">
@@ -205,12 +209,18 @@ export default function InquiryForm({ initialIntent = "general" }: { initialInte
         </fieldset>
       </div>
 
+      <div className="mt-7 grid gap-7 sm:grid-cols-2">
+        <div><label htmlFor="f-location" className="microlabel">Your city or state — optional</label><input id="f-location" name="clientLocation" value={clientLocation} maxLength={MAX_FIELD_LENGTH} onChange={e=>setClientLocation(e.target.value)} className={`${field} border-accent`}/></div>
+        <div><label htmlFor="f-visit" className="microlabel">Can you be on site? — optional</label><select id="f-visit" name="canVisit" value={canVisit} onChange={e=>setCanVisit(e.target.value)} className={`${field} border-accent`}><option value="">Choose an answer</option><option>I am local</option><option>I can arrange a visit</option><option>I need help from out of state</option><option>Not sure yet</option></select></div>
+      </div>
       <div className="mt-7">
         <label htmlFor="f-message" className="microlabel">Message — optional</label>
+        <p id="message-hint" className="mt-2 text-sm quiet">{intent==="buyer"?"Area, budget, must-haves, and when you want to move.":intent==="seller"?"Address, condition, occupancy, and when you hope to sell.":intent==="investor"?"Area, budget, hold or resale, and your plan after closing.":intent==="renovations"?"Address, current condition, access, and whether you want to sell, rent, or hold.":"Tell me what you have in mind and your timing."}</p>
         <textarea
           id="f-message"
           name="message"
           rows={5}
+          aria-describedby="message-hint"
           value={message}
           maxLength={MAX_FIELD_LENGTH}
           onChange={(e) => setMessage(e.target.value)}

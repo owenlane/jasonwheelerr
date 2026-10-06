@@ -4,15 +4,15 @@ import { brokerage, nav, person } from "@/lib/site";
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-media text-field">
+    <footer className="site-footer">
       <Shell>
         <div className="grid gap-12 py-16 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)] lg:py-20">
           <div>
             <p className="font-display text-[0.9375rem] tracking-[0.06em]">JASON WHEELER</p>
             <p className="microlabel mt-3 text-accent">{brokerage.name}</p>
             <p className="measure-tight mt-6 text-[0.9375rem] leading-relaxed text-field/70">
-              Real estate across Las Vegas and Southern Nevada, and on-the-ground help for owners
-              whose property is here when they are not.
+              Buying, selling, investing and renovation coordination in Las Vegas and Southern Nevada.
+              Local help for clients here and out of state.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a

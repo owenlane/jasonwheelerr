@@ -7,7 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/buy", priority: 0.9, freq: "monthly" },
     { path: "/sell", priority: 0.9, freq: "monthly" },
     { path: "/invest", priority: 0.9, freq: "monthly" },
-    { path: "/property-help", priority: 0.95, freq: "monthly" },
+    { path: "/renovations", priority: 0.95, freq: "monthly" },
     { path: "/videos", priority: 0.8, freq: "weekly" },
     { path: "/about", priority: 0.7, freq: "monthly" },
     { path: "/reviews", priority: 0.75, freq: "monthly" },

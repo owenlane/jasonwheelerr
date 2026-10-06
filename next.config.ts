@@ -11,10 +11,18 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Former standalone route. Its content now lives on /property-help.
+      // R3: "Property Help" is renamed to "Renovations". The old route and
+      // its former child both keep working so inbound links are not lost.
+      // Ordered child-first so the deeper path is not swallowed by the
+      // parent rule.
       {
         source: "/property-help/out-of-state-owners",
-        destination: "/property-help#out-of-state-owners",
+        destination: "/renovations#out-of-state-owners",
+        permanent: true,
+      },
+      {
+        source: "/property-help",
+        destination: "/renovations",
         permanent: true,
       },
     ];

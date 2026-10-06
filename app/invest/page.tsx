@@ -1,95 +1,25 @@
 import type { Metadata } from "next";
-import { Body, ClosingContact, Cta, DataRows, Display, Section, Shell, Steps } from "@/components/primitives";
+import { Body,ClosingContact,DataRows,Display,Section,Steps } from "@/components/primitives";
+import { PageIntro,PhotoStory,PhotoBand,PhotoFigure } from "@/components/PhotoSections";
 import { VideoGrid } from "@/components/VideoPlayer";
 import VideoEmpty from "@/components/VideoEmpty";
-import { person } from "@/lib/site";
-import { featured, fetchVideos } from "@/lib/youtube";
-
-export const revalidate = 3600;
-
-export const metadata: Metadata = {
-  title: "Invest",
-  description:
-    "Representation for investors buying rentals, fixers and distressed property in Las Vegas and Southern Nevada, with the property walked and filmed on site.",
-  alternates: { canonical: "/invest" },
-};
-
-const steps = [
-  { name: "Criteria", detail: "Strategy, budget, target areas, and how much work you will genuinely take on." },
-  { name: "Screening", detail: "Candidates filtered before they cost you time." },
-  { name: "On site", detail: "Walked and filmed. Roof, systems, layout, and what was done badly." },
-  { name: "Execute", detail: "Offer, inspection, escrow — and coordination of the work afterwards." },
-];
-
-export default async function InvestPage() {
-  const videos = await fetchVideos();
-  const proof = featured(videos, ["renovated", "rentals-vacant"], 2);
-
-  return (
-    <>
-      <section className="bg-field">
-        <Shell>
-          <div className="max-w-4xl py-14 sm:py-20">
-            <p className="microlabel">Investors · {person.market}</p>
-            <Display level={1} className="mt-7">
-              SOMEONE HAS BEEN INSIDE IT ALREADY
-            </Display>
-            <p className="measure mt-7 text-[1.0625rem] leading-[1.7] quiet">
-              Investing at a distance means trusting somebody else&rsquo;s description of a building.
-              This works the other way round: walked, filmed, and an honest account of the condition —
-              including when the numbers do not survive contact with the house.
-            </p>
-            <div className="mt-9">
-              <Cta href="/contact?intent=investor">Contact Jason</Cta>
-            </div>
-          </div>
-        </Shell>
-      </section>
-
-      <Section label="Where this helps" tone="raised">
-        <Display level={2} className="max-w-3xl">
-          THE PROPERTY THIS SUITS
-        </Display>
-        <DataRows
-          rows={[
-            { term: "Buy and hold", detail: "Rental candidates, assessed for what they cost to keep tenanted." },
-            { term: "Fixers", detail: "Houses that need real work — walked, filmed and scoped before an offer." },
-            { term: "Distressed", detail: "Short sales and as-is property, where being on site early matters most." },
-            { term: "Post-tenant", detail: "Turnovers where nobody has seen the inside since the tenants left." },
-            { term: "From out of state", detail: "Full film so a remote decision is made on evidence." },
-            { term: "Already owned", detail: "Ongoing property help on units you hold here." },
-          ]}
-        />
-      </Section>
-
-      <Section label="How it runs">
-        <Display level={2} className="max-w-3xl">
-          FROM CRITERIA TO KEYS
-        </Display>
-        <Steps steps={steps} />
-        <Body className="mt-12">
-          Owning it afterwards from another state is a logistics problem that repeats. Vendors get
-          met on site, turnovers get documented, and the property gets back to rentable or sale-ready
-          without you flying in for each step.
-        </Body>
-        <div className="mt-8">
-          <Cta href="/property-help" variant="outline">Property Help</Cta>
-        </div>
-      </Section>
-
-      <Section label="Walkthrough film" tone="media">
-        <Display level={2} className="max-w-3xl">
-          FIXERS, VACANTS AND FINISHED WORK
-        </Display>
-        {proof.length > 0 ? <VideoGrid videos={proof} /> : <VideoEmpty tone="media" />}
-        <div className="mt-10">
-          <Cta href="/videos" variant="onMedia">YouTube Videos</Cta>
-        </div>
-      </Section>
-
-      <ClosingContact heading="SEND YOUR CRITERIA" intent="investor">
-        Strategy, budget, target areas, and how much work you are willing to take on.
-      </ClosingContact>
-    </>
-  );
+import { featured,fetchVideos } from "@/lib/youtube";
+export const revalidate=3600;
+export const metadata:Metadata={title:"Invest",description:"Local real estate guidance for Las Vegas rentals, fixers, vacant properties, auctions, and investment purchases.",alternates:{canonical:"/invest"}};
+export default async function InvestPage(){
+ const proof=featured(await fetchVideos(),["rentals-vacant","renovated"],2);
+ return <>
+  <PageIntro label="Investment property" heading="Look at the numbers. Look at the house." description="Local real estate guidance for rentals, fixers, vacant properties, and your next investment purchase." intent="investor"/>
+  <PhotoBand photo={{group:"water",index:2}} label="Start with your criteria" heading="What do you want the property to do?"><p>A hold and a renovation for resale call for different searches. Tell me the budget, the area, the type of property, and how much work you are prepared to take on.</p></PhotoBand>
+  <Section label="The property behind the listing"><div className="section-heading"><Display>The photos are a starting point.</Display><Body className="mt-5">A useful review connects the listing details to the actual house. Where access is available, visible condition, layout, and unfinished work all belong in the conversation.</Body></div>
+    <DataRows rows={[{term:"Rentals and vacant homes",detail:"Consider occupancy, current condition, and possible preparation before the next use. Ongoing management needs its own plan."},{term:"Fixers and renovation projects",detail:"Compare the purchase price with the work you are considering. Specialist assessments and written estimates help you judge the scope."},{term:"Auction purchases",detail:"Review the available property information, auction requirements, and access limitations before deciding whether to bid."},{term:"1031 exchanges",detail:"Coordinate the real estate search and transaction with your qualified intermediary and tax adviser."},{term:"Title questions",detail:"Work with the title company and your attorney to understand what must be resolved. Quiet title is a legal process."}]}/>
+  </Section>
+  <PhotoStory photo={{group:"water",index:1}} reverse label="Scope and costs" heading="Put the condition beside the asking price."><p>Purchase price is one part of the decision. Repairs, holding costs, financing, and the exit plan need their own numbers. I can help with the real estate comparison; projected rent, resale value, and returns remain estimates.</p></PhotoStory>
+  <Section label="A clear role">
+    <div className="grid items-center gap-12 md:grid-cols-2"><div><Display>Real estate representation.</Display><Body className="mt-5">This is not a fund or a property-management service. You choose the investment and decide what to spend. Licensed trades handle construction, and your legal, tax, and financial advisers handle their respective questions.</Body></div><PhotoFigure photo={{group:"water",index:0}}/></div>
+  </Section>
+  <Section label="Bring the criteria" tone="raised"><div className="section-heading"><Display>Make the search specific.</Display></div><Steps steps={[{name:"Area and budget",detail:"Where you want to buy and the amount available for the purchase and work."},{name:"Hold or resale",detail:"Your intended use and the timeline you are working toward."},{name:"Condition and occupancy",detail:"The work you can take on and whether an occupied property fits your plans."},{name:"After closing",detail:"Who will handle repairs, leasing, and ongoing management if needed."}]}/></Section>
+  <Section label="Property videos" rule={false}><div className="section-heading"><Display>See the condition on film.</Display></div>{proof.length?<VideoGrid videos={proof}/>:<VideoEmpty/>}</Section>
+  <ClosingContact heading="Tell me what you want to buy." intent="investor">Include the area, budget, intended use, and the work you are comfortable taking on.</ClosingContact>
+ </>;
 }
