@@ -23,11 +23,12 @@ export default function VideoLibrary({ videos }: { videos: Video[] }) {
 
   if (byFilter(videos, "latest").length === 0) {
     return (
-      <div className="mt-10 border border-accent p-8">
+      <div data-video-empty className="mt-10 border border-accent p-8">
         <p className="measure text-[0.9375rem] leading-relaxed quiet">
           The library is loading from YouTube. Everything is on the channel itself.
         </p>
         <a
+          data-video-ctrl
           href={person.youtubeUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -74,6 +75,7 @@ export default function VideoLibrary({ videos }: { videos: Video[] }) {
 
       {shown < list.length && (
         <button
+          data-video-ctrl
           type="button"
           onClick={() => setShown((n) => n + PAGE)}
           className="mt-12 inline-flex min-h-12 items-center border border-ink px-7 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] transition-colors hover:bg-ink hover:text-field"
