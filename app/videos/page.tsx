@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import CinematicSection from "@/components/v3/CinematicSection";
-import { Actions, Body, Btn, ContactTag, H1, H2, H3, PhotoInner, Solid } from "@/components/v3/sections";
+import { Actions, Body, Btn, Group, H1, H2, H3, PhotoInner, Solid } from "@/components/v3/sections";
 import VideoLibrary from "@/components/VideoLibrary";
 import PersonalVideoCollection from "@/components/PersonalVideoCollection";
 import { person } from "@/lib/site";
@@ -27,19 +27,23 @@ export default async function VideosPage() {
         </PhotoInner>
       </CinematicSection>
 
-      <Solid colors={palette.videos.s2} align="C">
+      <Solid colors={{ ...palette.videos.s2, hue: "11 27 46" }} align="C">
         <div className="v3-text">
           <H2>{"Take a look through the houses."}</H2>
-          <Body>
-            {"Layouts, finishes, and visible condition at the time of filming. Contact me for current property details and availability."}
-          </Body>
+          <Group>
+            <Body>
+              {"Layouts, finishes, and visible condition at the time of filming. Contact me for current property details and availability."}
+            </Body>
+          </Group>
         </div>
         <div className="text-left">
           <VideoLibrary videos={videos} />
         </div>
         <div className="v3-text mt-20">
           <H3 id="personal-videos">{"Away from the properties."}</H3>
-          <Body>{"Personal videos on fishing, grappling, everyday projects, and other interests."}</Body>
+          <Group>
+            <Body>{"Personal videos on fishing, grappling, everyday projects, and other interests."}</Body>
+          </Group>
         </div>
         <div className="mt-10 text-left">
           <PersonalVideoCollection initialCount={10} headingId="personal-videos" />
@@ -49,14 +53,15 @@ export default async function VideosPage() {
         </Actions>
       </Solid>
 
-      <Solid colors={palette.videos.s3} align="C">
+      <Solid colors={palette.videos.s3} align="C" className="v3-cta">
         <div className="v3-text">
-          <ContactTag />
           <H2>{"Have a question about a property?"}</H2>
-          <Body>{"Send me the video or the address, and tell me what you would like to know."}</Body>
-          <Actions>
-            <Btn href="/contact">{"Get in touch with me"}</Btn>
-          </Actions>
+          <Group>
+            <Body>{"Send me the video or the address, and tell me what you would like to know."}</Body>
+            <Actions>
+              <Btn href="/contact">{"Get in touch with me"}</Btn>
+            </Actions>
+          </Group>
         </div>
       </Solid>
     </>
