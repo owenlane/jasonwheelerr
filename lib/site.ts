@@ -30,8 +30,8 @@ export const brokerage = {
   office: "6675 S Tenaya Way, Suite 200, Las Vegas, NV 89113",
 } as const;
 
-/** User confirmed 29 years of real estate experience in the V3 revision sheet. */
-export const yearsExperience = 29;
+/** 30 years of real estate experience, per the approved V3 copy. */
+export const yearsExperience = 30;
 
 /**
  * REVIEWS — verbatim client testimonials supplied in the final revision.

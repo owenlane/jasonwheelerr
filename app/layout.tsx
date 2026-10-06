@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: `%s | ${person.name}`,
   },
   description:
-    "Jason Wheeler. 29 years of real estate experience. Buying, selling, investing and renovation coordination in Las Vegas and Southern Nevada.",
+    "Jason Wheeler. 30 years of real estate experience. Buying, selling, investing and renovation coordination in Las Vegas and Southern Nevada.",
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     title: `${person.name} — Las Vegas real estate and renovations`,
     description:
-      "Buying, selling, investing and renovation coordination in Las Vegas. 29 years of real estate experience.",
+      "Buying, selling, investing and renovation coordination in Las Vegas. 30 years of real estate experience.",
   },
   twitter: {
     card: "summary_large_image",
