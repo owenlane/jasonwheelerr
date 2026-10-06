@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { rgb, type Align, type CineFrame } from "@/lib/v3";
-import { KenBurns } from "./motion";
+import { Deferred, KenBurns } from "./motion";
 
 /**
  * A still photo section (Invest § 2 full-bleed, Reviews sole section):
@@ -29,11 +29,13 @@ export default function PhotoStill({
         <div className="v3-frames">
           <div className="v3-frame" style={{ opacity: 1, "--o-a": frame.a, "--o-b": frame.b } as CSSProperties}>
             <KenBurns>
+              <MaybeDeferred defer={!priority}>
               <picture>
                 <source type="image/avif" srcSet={frame.avif} sizes="100vw" />
                 <source type="image/webp" srcSet={frame.webp} sizes="100vw" />
                   <img src={frame.fallback} alt="" width={1920} height={1080} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" style={{ objectPosition: frame.focal }} />
               </picture>
+              </MaybeDeferred>
             </KenBurns>
             <div className="v3-overlay" />
           </div>
@@ -43,4 +45,9 @@ export default function PhotoStill({
       <div className="v3-content">{children}</div>
     </section>
   );
+}
+
+/** The § 1 still (LCP) loads immediately; a below-fold still waits for page load. */
+function MaybeDeferred({ defer, children }: { defer: boolean; children: ReactNode }) {
+  return defer ? <Deferred>{children}</Deferred> : <>{children}</>;
 }

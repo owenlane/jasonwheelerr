@@ -36,6 +36,29 @@ export function useReducedMotion() {
   }, []);
   return reduced;
 }
+/** Resolves once, shortly after the window load event: secondary imagery waits for it (LCP first). */
+let loaded: Promise<void> | null = null;
+const whenLoaded = () =>
+  (loaded ??= new Promise<void>((r) => {
+    const go = () => window.setTimeout(r, 200);
+    if (document.readyState === "complete") go();
+    else window.addEventListener("load", go, { once: true });
+  }));
+export function useAfterLoad() {
+  const [ok, setOk] = useState(false);
+  useEffect(() => {
+    let live = true;
+    whenLoaded().then(() => live && setOk(true));
+    return () => { live = false; };
+  }, []);
+  return ok;
+}
+/** Below-fold/secondary image: not requested until after load. `ratio` reserves its box meanwhile (no shift). */
+export function Deferred({ children, ratio }: { children: ReactNode; ratio?: string }) {
+  const ok = useAfterLoad();
+  if (ok) return <>{children}</>;
+  return ratio ? <span data-deferred="pending" style={{ display: "block", aspectRatio: ratio }} /> : <span data-deferred="pending" hidden />;
+}
 /** Already on screen (or above it) at mount: never arm an entrance for it. */
 const visibleNow = (el: Element) => el.getBoundingClientRect().top < innerHeight * 0.88;
 

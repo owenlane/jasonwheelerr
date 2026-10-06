@@ -23,11 +23,12 @@
 
 import { useState } from "react";
 import { personalVideos, type PersonalVideo } from "@/lib/personal-videos";
-import { Rise } from "./v3/motion";
+import { Rise, useAfterLoad } from "./v3/motion";
 
 function VideoCard({ video, index }: { video: PersonalVideo; index: number }) {
   const [loaded, setLoaded] = useState(false);
   const [embedFailed, setEmbedFailed] = useState(false);
+  const afterLoad = useAfterLoad(); // thumbnail is secondary imagery: request after load (LCP first)
 
   return (
     <Rise as="li" delay={Math.min(180, (index % 3) * 60)} className="photo-palette video-card" attrs={{ "data-palette": video.id==="P01"?"gym":["P03","P04"].includes(video.id)?"water":["P02","P06","P07"].includes(video.id)?"interior":"valley" }}>
@@ -52,7 +53,7 @@ function VideoCard({ video, index }: { video: PersonalVideo; index: number }) {
               aria-hidden="true"
               className="v3-thumb absolute inset-0"
               style={{
-                backgroundImage: `url(https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg)`,
+                backgroundImage: afterLoad ? `url(https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg)` : undefined,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAfterLoad } from "./v3/motion";
 import { formatDate, type Video } from "@/lib/youtube";
 import { videoTitles } from "@/lib/video-titles";
 
@@ -11,6 +12,7 @@ import { videoTitles } from "@/lib/video-titles";
  */
 export function CinematicVideo({ video, priority = false }: { video: Video; priority?: boolean }) {
   const [playing, setPlaying] = useState(false);
+  const afterLoad = useAfterLoad(); // thumbnails are secondary imagery: request after load (LCP first)
   const title = videoTitles[video.id] ?? video.title;
 
   return (
@@ -31,14 +33,16 @@ export function CinematicVideo({ video, priority = false }: { video: Video; prio
             className="absolute inset-0 h-full w-full cursor-pointer"
             aria-label={`Play video: ${title}`}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={video.thumbnail}
-              alt=""
-              loading={priority ? "eager" : "lazy"}
-              decoding="async"
-              className="v3-thumb h-full w-full object-cover"
-            />
+            {(priority || afterLoad) && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={video.thumbnail}
+                alt=""
+                loading={priority ? "eager" : "lazy"}
+                decoding="async"
+                className="v3-thumb h-full w-full object-cover"
+              />
+            )}
             <span className="absolute inset-0 bg-gradient-to-t from-media/90 via-media/35 to-transparent" />
             <span className="absolute bottom-5 left-5 flex items-center gap-3">
               <span className="play-mark flex h-11 w-11 items-center justify-center">

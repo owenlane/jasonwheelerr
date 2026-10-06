@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { rgb, type Align, type CineFrame } from "@/lib/v3";
+import { useAfterLoad } from "./motion";
 
 /** Approved timing: each frame holds 8 s, then a 2 s eased dissolve. */
 export const HOLD_MS = 8000;
@@ -40,6 +41,9 @@ export default function CinematicSection({
   const [reduced, setReduced] = useState(false);
   const [visible, setVisible] = useState(false);
   const [tabVisible, setTabVisible] = useState(true);
+  // Frames 2+ are invisible until the first dissolve (8s): request them only after the page has loaded
+  // (and never under reduced motion), so they never compete with the first frame / LCP.
+  const afterLoad = useAfterLoad();
   const multi = frames.length > 1;
 
   const paint = useCallback(() => {
@@ -111,6 +115,7 @@ export default function CinematicSection({
     return () => cancelAnimationFrame(raf);
   }, [running, frames.length, paint]);
 
+  const loadRest = afterLoad && !reduced;
   const style = { "--v3-hue": rgb(hue), "--v3-bg": hue, "--v3-fg": "#FFFFFF", "--v3-btn-label": hue } as CSSProperties;
 
   return (
@@ -133,6 +138,7 @@ export default function CinematicSection({
               className="v3-frame"
               style={{ opacity: i === 0 ? 1 : 0, zIndex: i === 0 ? 1 : 0, "--o-a": f.a, "--o-b": f.b } as CSSProperties}
             >
+              {(i === 0 || loadRest) && (
               <picture>
                 <source type="image/avif" srcSet={f.avif} sizes="100vw" />
                 <source type="image/webp" srcSet={f.webp} sizes="100vw" />
@@ -148,6 +154,7 @@ export default function CinematicSection({
                   style={{ objectPosition: f.focal, transform: f.scale ? `scale(${f.scale})` : undefined, transformOrigin: f.focal }}
                 />
               </picture>
+              )}
               <div className="v3-overlay" />
             </div>
           ))}

@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { rgb, type FeatureImage } from "@/lib/v3";
-import { FeatureFit, KenBurns, RevealCover } from "./motion";
+import { Deferred, FeatureFit, KenBurns, RevealCover } from "./motion";
 
 /**
  * JWV3-FINAL-2 FEATURE: one continuous background — opaque same-family base,
@@ -42,11 +42,13 @@ export default function Feature({
       <div className="v3-bg" aria-hidden="true">
         <div className="v3-faint">
           <KenBurns>
+            <Deferred>
             <picture>
               <source type="image/avif" srcSet={faint.avif} sizes="100vw" />
               <source type="image/webp" srcSet={faint.webp} sizes="100vw" />
               <img src={faint.fallback} alt="" width={faint.width} height={faint.height} loading="lazy" decoding="async" style={{ objectPosition: faint.focal }} />
             </picture>
+            </Deferred>
           </KenBurns>
         </div>
       </div>
@@ -69,10 +71,12 @@ export default function Feature({
 /** Foreground framed photo (same assigned source as the faint still). Decorative scenery: empty alt. */
 export function FeaturePhoto({ img, alt = "", sizes = "(min-width: 900px) 470px, 100vw" }: { img: FeatureImage; alt?: string; sizes?: string }) {
   return (
+    <Deferred ratio={`${img.width} / ${img.height}`}>
     <picture>
       <source type="image/avif" srcSet={img.avif} sizes={sizes} />
       <source type="image/webp" srcSet={img.webp} sizes={sizes} />
       <img src={img.fallback} alt={alt} width={img.width} height={img.height} loading="lazy" decoding="async" />
     </picture>
+    </Deferred>
   );
 }

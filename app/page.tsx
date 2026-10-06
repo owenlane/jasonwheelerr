@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import CinematicSection from "@/components/v3/CinematicSection";
 import Feature from "@/components/v3/Feature";
 import { Actions, Body, Btn, Group, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
-import { Rise } from "@/components/v3/motion";
+import { Deferred, Rise } from "@/components/v3/motion";
 import { CinematicVideo } from "@/components/VideoPlayer";
 import VideoEmpty from "@/components/VideoEmpty";
 import { featured, fetchVideos } from "@/lib/youtube";
@@ -42,11 +42,13 @@ export default async function HomePage() {
         textAlign="right"
         faint={featureImages.home}
         media={
+          <Deferred ratio="1245 / 1556">
           <picture>
             <source type="image/avif" srcSet={headshot.avif} sizes="(min-width: 900px) 320px, 180px" />
             <source type="image/webp" srcSet={headshot.webp} sizes="(min-width: 900px) 320px, 180px" />
             <img src={headshot.fallback} alt={headshot.alt} width={headshot.width} height={headshot.height} loading="lazy" decoding="async" />
           </picture>
+          </Deferred>
         }
       >
         <Group>
