@@ -23,7 +23,24 @@ const GROUPS = [
   { dir: "arena", match: /^(t-mobile-arena|allegiant-stadium)-/ },
   { dir: "park", match: /^(mesa-park|fox-hill-park)-/ },
   { dir: "speedway", match: /^las-vegas-motor-speedway-/ },
+  // V3: Home §4 aerials A/B and the two supplied Sell photographs.
+  { dir: "home", match: /^home-aerial-/ },
+  { dir: "sell", match: /^sell-photo-/ },
 ];
+
+/**
+ * V3 Home §2 headshot. Portrait 4:5 crop of the landscape original, keeping
+ * the full head and face (approved crop; slight shoulder trim). Composition
+ * and colour are otherwise unchanged. Focal point: x 1076 / y 778 of the
+ * 2121×1556 original.
+ */
+const HEADSHOT = {
+  file: "jason-wheeler-headshot-c.jpeg",
+  dir: "home",
+  base: "jason-wheeler-headshot-4x5",
+  crop: { left: 454, top: 0, width: 1245, height: 1556 },
+  widths: [440, 880, 1245],
+};
 
 /**
  * Per-source AVIF quality overrides. Falling snow is high-frequency noise and
@@ -56,8 +73,13 @@ for (const file of files) {
   await mkdir(out, { recursive: true });
   const base = file.replace(/\.png$/, "");
   const sizes = [];
+  // Never upscale: widths above the source are replaced by the source width.
+  const { width: srcWidth } = await sharp(path.join(SRC, file)).metadata();
+  const widths = WIDTHS.filter((w) => w <= srcWidth);
+  if (!widths.includes(srcWidth) && srcWidth < WIDTHS.at(-1)) widths.push(srcWidth);
+  const largest = widths.at(-1);
 
-  for (const w of WIDTHS) {
+  for (const w of widths) {
     for (const [fmt, opts] of [
       ["avif", { quality: AVIF_QUALITY[base] ?? 52, effort: 4 }],
       ["webp", { quality: 74 }],
@@ -68,15 +90,33 @@ for (const file of files) {
       if (!exists) {
         await sharp(path.join(SRC, file)).resize(w).toFormat(fmt, opts).toFile(dest);
       }
-      if (w === 1920) sizes.push(`${fmt} ${((await stat(dest)).size / 1024).toFixed(0)}KB`);
+      if (w === largest) sizes.push(`${fmt} ${((await stat(dest)).size / 1024).toFixed(0)}KB`);
     }
   }
 
   const buf = await sharp(path.join(SRC, file)).resize(16).webp({ quality: 30 }).toBuffer();
   blur[base] = `data:image/webp;base64,${buf.toString("base64")}`;
   total++;
-  console.log(`  ${group.dir.padEnd(11)} ${base}  @1920 ${sizes.join("  ")}`);
+  console.log(`  ${group.dir.padEnd(11)} ${base}  @${largest} ${sizes.join("  ")}`);
+}
+
+{
+  const out = path.join("public/images", HEADSHOT.dir);
+  await mkdir(out, { recursive: true });
+  for (const w of HEADSHOT.widths) {
+    for (const [fmt, opts] of [
+      ["avif", { quality: 60, effort: 4 }],
+      ["webp", { quality: 82 }],
+    ]) {
+      const dest = path.join(out, `${HEADSHOT.base}-${w}.${fmt}`);
+      const exists = await access(dest).then(() => true).catch(() => false);
+      if (!exists) {
+        await sharp(path.join(SRC, HEADSHOT.file)).extract(HEADSHOT.crop).resize(w).toFormat(fmt, opts).toFile(dest);
+      }
+    }
+  }
+  console.log(`  ${HEADSHOT.dir.padEnd(11)} ${HEADSHOT.base}  4:5 crop ${HEADSHOT.widths.join("/")}w`);
 }
 
 await writeFile("assets/blur-placeholders.json", JSON.stringify(blur, null, 2));
-console.log(`\n${total} source images processed, ${total * WIDTHS.length * 2} derivatives written.`);
+console.log(`\n${total} source images processed, plus the Home headshot crop.`);
