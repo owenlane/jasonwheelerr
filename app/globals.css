@@ -236,6 +236,7 @@
 .v3 [data-video-empty] { border:0; padding:0; }
 .v3-align-C [data-video-empty] p { margin-inline:auto; }
 .v3 .btn-secondary:hover,.v3 [data-video-ctrl]:hover { background:transparent; color:var(--v3-fg); text-decoration:underline; text-underline-offset:.22em; }
+.v3-align-C .v3-personal [aria-expanded] { display:flex; width:fit-content; margin-inline:auto; }
 .v3-video-grid { margin-top:2.5rem; display:grid; gap:3rem 2rem; text-align:left; }
 @media (min-width:768px) { .v3-video-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 .v3-align-C .v3-video-grid { display:flex; flex-wrap:wrap; justify-content:center; text-align:center; }
