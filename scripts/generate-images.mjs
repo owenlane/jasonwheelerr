@@ -25,6 +25,8 @@ const GROUPS = [
   // V3: Home §4 aerials A/B and the two supplied Sell photographs.
   { dir: "home", match: /^home-aerial-/ },
   { dir: "sell", match: /^sell-photo-/ },
+  // JWV3-FINAL-2 R103: supplied feature/section images (Home/Buy/Sell/Invest/Renovations).
+  { dir: "feature", match: /^page\d+section\d+image$/ },
 ];
 
 /**
@@ -62,7 +64,7 @@ const blur = {};
 let total = 0;
 
 for (const file of files) {
-  const group = GROUPS.find((g) => g.match.test(file));
+  const group = GROUPS.find((g) => g.match.test(file.replace(/\.png$/, "")));
   if (!group) {
     console.warn(`  SKIP (no group): ${file}`);
     continue;
