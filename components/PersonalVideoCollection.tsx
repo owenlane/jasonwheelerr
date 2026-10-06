@@ -23,14 +23,15 @@
 
 import { useState } from "react";
 import { personalVideos, type PersonalVideo } from "@/lib/personal-videos";
+import { Rise } from "./v3/motion";
 
-function VideoCard({ video }: { video: PersonalVideo }) {
+function VideoCard({ video, index }: { video: PersonalVideo; index: number }) {
   const [loaded, setLoaded] = useState(false);
   const [embedFailed, setEmbedFailed] = useState(false);
 
   return (
-    <li className="photo-palette video-card" data-palette={video.id==="P01"?"gym":["P03","P04"].includes(video.id)?"water":["P02","P06","P07"].includes(video.id)?"interior":"valley"}>
-      <div className="relative aspect-video bg-black">
+    <Rise as="li" delay={Math.min(180, (index % 3) * 60)} className="photo-palette video-card" attrs={{ "data-palette": video.id==="P01"?"gym":["P03","P04"].includes(video.id)?"water":["P02","P06","P07"].includes(video.id)?"interior":"valley" }}>
+      <div className="relative aspect-video overflow-hidden bg-black">
         {loaded && !embedFailed ? (
           <iframe
             src={`https://www.youtube-nocookie.com/embed/${video.youtubeId}?autoplay=1&rel=0`}
@@ -46,12 +47,16 @@ function VideoCard({ video }: { video: PersonalVideo }) {
             onClick={() => setLoaded(true)}
             aria-label={`Play the video: ${video.displayTitle}`}
             className="group absolute inset-0 h-full w-full cursor-pointer border-0 p-0"
-            style={{
-              backgroundImage: `url(https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg)`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
           >
+            <span
+              aria-hidden="true"
+              className="v3-thumb absolute inset-0"
+              style={{
+                backgroundImage: `url(https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg)`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            />
             <span
               aria-hidden="true"
               className="absolute inset-0 grid place-items-center bg-[rgba(10,18,26,0.45)] text-4xl text-white transition-colors group-hover:bg-[rgba(10,18,26,0.3)]"
@@ -81,7 +86,7 @@ function VideoCard({ video }: { video: PersonalVideo }) {
           <span className="sr-only"> (opens in a new tab)</span>
         </a>
       </div>
-    </li>
+    </Rise>
   );
 }
 
@@ -98,8 +103,8 @@ export default function PersonalVideoCollection({
   return (
     <div aria-labelledby={headingId}>
       <ul className="grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3">
-        {shown.map((v) => (
-          <VideoCard key={v.youtubeId} video={v} />
+        {shown.map((v, i) => (
+          <VideoCard key={v.youtubeId} video={v} index={i} />
         ))}
       </ul>
 

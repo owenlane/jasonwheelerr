@@ -37,7 +37,7 @@ export function CinematicVideo({ video, priority = false }: { video: Video; prio
               alt=""
               loading={priority ? "eager" : "lazy"}
               decoding="async"
-              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+              className="v3-thumb h-full w-full object-cover"
             />
             <span className="absolute inset-0 bg-gradient-to-t from-media/75 via-media/10 to-transparent" />
             <span className="absolute bottom-5 left-5 flex items-center gap-3">

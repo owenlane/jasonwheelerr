@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { CinematicVideo } from "./VideoPlayer";
+import { Rise } from "./v3/motion";
 import { byFilter, propertyFilters, type PropertyCategory, type Video } from "@/lib/youtube";
 import { person } from "@/lib/site";
 
@@ -68,8 +69,10 @@ export default function VideoLibrary({ videos }: { videos: Video[] }) {
       </p>
 
       <div className="mt-8 grid gap-x-8 gap-y-12 md:grid-cols-2 xl:grid-cols-3">
-        {list.slice(0, shown).map((v) => (
-          <CinematicVideo key={v.id} video={v} />
+        {list.slice(0, shown).map((v, i) => (
+          <Rise key={v.id} delay={Math.min(180, (i % 3) * 60)}>
+            <CinematicVideo video={v} />
+          </Rise>
         ))}
       </div>
 
