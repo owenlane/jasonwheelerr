@@ -85,7 +85,12 @@ export function RevealHeading({ as: Tag = "h2", text, className = "", id }: { as
     const spans = [...ref.current.querySelectorAll<HTMLElement>("[data-w]")];
     const out: string[] = [];
     let top = -1;
-    spans.forEach((s) => { if (Math.abs(s.offsetTop - top) > 2) { out.push(s.textContent ?? ""); top = s.offsetTop; } else out[out.length - 1] += " " + s.textContent; });
+    spans.forEach((s) => {
+      const w = (s.textContent ?? "").trim();
+      if (!out.length || Math.abs(s.offsetTop - top) > 2) { out.push(w); top = s.offsetTop; } else out[out.length - 1] += " " + w;
+    });
+    // Never arm without measured lines: an empty heading must not be possible.
+    if (!out.length || out.join(" ") !== words.join(" ")) { setPhase("plain"); return; }
     setLines(out);
     setPhase("armed");
   }, [phase]);
@@ -105,8 +110,8 @@ export function RevealHeading({ as: Tag = "h2", text, className = "", id }: { as
   useEffect(() => { if (reduced) setPhase("plain"); }, [reduced]);
 
   let content: ReactNode = text;
-  if (phase === "measure") content = words.map((w, i) => <span key={i} data-w="">{(i ? " " : "") + w}</span>);
-  if (phase === "armed" || phase === "in")
+  if (phase === "measure") content = words.map((w, i) => <span key={i} data-w={i}>{(i ? " " : "") + w}</span>);
+  if ((phase === "armed" || phase === "in") && lines.length)
     content = lines.map((l, i) => (
       <span key={i} className="v3-line">
         <span className="v3-line-in" style={{ "--i": i } as CSSProperties}>{(i ? " " : "") + l}</span>

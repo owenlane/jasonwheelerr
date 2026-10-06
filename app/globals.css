@@ -232,6 +232,7 @@
 [data-rise="armed"] { transform:translateY(16px); }
 [data-rise="in"] { transform:none; transition:transform 600ms var(--ease) var(--rise-delay,0ms); }
 .v3-line { display:block; overflow:hidden; padding:0 .08em .14em; margin:0 -.08em -.14em; }
+[data-reveal="armed"], [data-reveal="in"] { display:flow-root; } /* keep the line margins inside: no height change when the split is removed */
 .v3-line-in { display:block; }
 [data-reveal="armed"] .v3-line-in { transform:translateY(105%); }
 [data-reveal="in"] .v3-line-in { transform:none; transition:transform 600ms var(--ease); transition-delay:min(calc(var(--i) * 60ms),180ms); }
