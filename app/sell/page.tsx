@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import CinematicSection from "@/components/v3/CinematicSection";
-import { Actions, Body, Btn, ContactTag, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
-import { frames, palette } from "@/lib/v3";
+import Feature, { FeaturePhoto } from "@/components/v3/Feature";
+import { Actions, Body, Btn, Group, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
+import { feature, featureImages, frames, palette } from "@/lib/v3";
 
 export const metadata: Metadata = {
   title: "Sell",
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 export default function SellPage() {
   return (
     <>
-      <CinematicSection frames={frames.sell} hue={palette.sell.hue} align="R" priority>
+      <CinematicSection frames={frames.sell} hue={palette.sell.hue} align="C" priority>
         <PhotoInner>
           <div className="v3-text">
             <H1>{"For Sellers"}</H1>
@@ -24,25 +25,26 @@ export default function SellPage() {
         </PhotoInner>
       </CinematicSection>
 
-      <Solid colors={palette.sell.s2} align="L">
-        <div className="v3-text">
-          <H2>{"You do not have to fix everything first."}</H2>
+      <Feature base={feature.sell} hue={palette.sell.hue} mediaSide="left" textAlign="right" faint={featureImages.sell} media={<FeaturePhoto img={featureImages.sell} />}>
+        <H2>{"You do not have to fix everything first."}</H2>
+        <Group>
           <Body>
             {
               "A dated house, a former rental, or an unfinished project doesn’t have to be fixed up before we talk. I can help you weigh selling as it stands against doing some preparation. Inherited homes and houses that didn’t sell the first time are part of that conversation, too."
             }
           </Body>
-        </div>
-      </Solid>
+        </Group>
+      </Feature>
 
-      <Solid colors={palette.sell.s3} align="C">
+      <Solid colors={palette.sell.s3} align="C" className="v3-cta">
         <div className="v3-text">
-          <ContactTag />
           <H2>{"Tell me about the house."}</H2>
-          <Body>{"Send the address, its condition, whether anyone lives there, and whether you are local."}</Body>
-          <Actions>
-            <Btn href="/contact?intent=seller">{"Get in touch with me"}</Btn>
-          </Actions>
+          <Group>
+            <Body>{"Send the address, its condition, whether anyone lives there, and whether you are local."}</Body>
+            <Actions>
+              <Btn href="/contact?intent=seller">{"Get in touch with me"}</Btn>
+            </Actions>
+          </Group>
         </div>
       </Solid>
     </>
