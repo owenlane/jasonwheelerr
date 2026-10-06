@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import CinematicSection from "@/components/v3/CinematicSection";
-import { Actions, Body, Btn, ContactTag, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
-import { frames, palette } from "@/lib/v3";
+import Feature, { FeaturePhoto } from "@/components/v3/Feature";
+import { Actions, Body, Btn, Group, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
+import { feature, featureImages, frames, palette } from "@/lib/v3";
 
 export const metadata: Metadata = {
   title: "Renovations",
@@ -25,36 +26,37 @@ export default function RenovationsPage() {
         </PhotoInner>
       </CinematicSection>
 
-      <Solid colors={palette.renovations.s2} align="R">
-        <div className="v3-text">
-          <H2>{"Sell, rent, or hold."}</H2>
+      <Feature base={feature.renovations2} hue={palette.renovations.hue} mediaSide="left" textAlign="right" faint={featureImages.renovations2} media={<FeaturePhoto img={featureImages.renovations2} />}>
+        <H2>{"Sell, rent, or hold."}</H2>
+        <Group>
           <Body>
             {
               "A vacant house, a former rental, and an unfinished project can need different kinds of attention. The work should fit what you want to do with the property."
             }
           </Body>
-        </div>
-      </Solid>
+        </Group>
+      </Feature>
 
-      <Solid colors={palette.renovations.s3} align="L">
-        <div className="v3-text">
-          <H2>{"The right people for the work."}</H2>
+      <Feature base={feature.renovations3} hue={palette.renovations.hue} mediaSide="right" textAlign="left" faint={featureImages.renovations3} media={<FeaturePhoto img={featureImages.renovations3} />}>
+        <H2>{"The right people for the work."}</H2>
+        <Group>
           <Body>
             {
               "My role is the real estate side and coordination around your property plan. Licensed contractors perform construction. Inspections, permits, legal questions, and property management stay with the professionals responsible for them."
             }
           </Body>
-        </div>
-      </Solid>
+        </Group>
+      </Feature>
 
-      <Solid colors={palette.renovations.s4} align="C">
+      <Solid colors={palette.renovations.s4} align="C" className="v3-cta">
         <div className="v3-text">
-          <ContactTag />
           <H2>{"Tell me what's happening with the property"}</H2>
-          <Body>{"Tell me the address, current condition, who has access, and whether you want to sell, rent, or hold."}</Body>
-          <Actions>
-            <Btn href="/contact?intent=renovations">{"Get in touch with me"}</Btn>
-          </Actions>
+          <Group>
+            <Body>{"Tell me the address, current condition, who has access, and whether you want to sell, rent, or hold."}</Body>
+            <Actions>
+              <Btn href="/contact?intent=renovations">{"Get in touch with me"}</Btn>
+            </Actions>
+          </Group>
         </div>
       </Solid>
     </>
