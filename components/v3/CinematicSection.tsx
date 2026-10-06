@@ -141,7 +141,7 @@ export default function CinematicSection({
                   alt=""
                   width={1920}
                   height={1080}
-                  loading={i === 0 ? "eager" : "lazy"}
+                  loading={i === 0 && priority ? "eager" : "lazy"}
                   fetchPriority={i === 0 && priority ? "high" : "auto"}
                   decoding="async"
                   onLoad={() => ready.current.add(i)}
