@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import CinematicSection from "@/components/v3/CinematicSection";
-import { Actions, Body, Btn, ContactTag, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
+import Feature, { FeaturePhoto } from "@/components/v3/Feature";
+import { Actions, Body, Btn, Group, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
 import PersonalVideoCollection from "@/components/PersonalVideoCollection";
-import { frames, palette } from "@/lib/v3";
+import { feature, featureImages, frames, palette } from "@/lib/v3";
 
 export const metadata: Metadata = {
   title: "About Jason",
@@ -23,36 +24,39 @@ export default function AboutPage() {
         </PhotoInner>
       </CinematicSection>
 
-      <Solid colors={palette.about.s2} align="C">
-        <div className="v3-text">
-          <H2>{"A practical approach to real estate"}</H2>
+      <Feature base={feature.about} hue={palette.about.hue} mediaSide="right" textAlign="left" faint={featureImages.about} media={<FeaturePhoto img={featureImages.about} />}>
+        <H2>{"A practical approach to real estate"}</H2>
+        <Group>
           <Body>{"Nevada real estate salesperson S.169016, with Blue Diamond Realty."}</Body>
           <Body>
             {
               "My role is real estate and coordination; I connect licensed inspectors and contractors for inspecting and construction. Ongoing property management, legal matters, and tax questions require the appropriate professionals."
             }
           </Body>
-        </div>
-      </Solid>
+        </Group>
+      </Feature>
 
-      <Solid colors={palette.about.s3} align="C">
+      <Solid colors={{ ...palette.about.s3, hue: "15 28 49" }} align="C">
         <div className="v3-text">
           <H2 id="about-personal-videos">{"My life outside real estate!"}</H2>
-          <Body>{"Grappling, fishing, projects, and other videos from my YouTube channel."}</Body>
+          <Group>
+            <Body>{"Grappling, fishing, projects, and other videos from my YouTube channel."}</Body>
+          </Group>
         </div>
         <div className="v3-personal mt-10 text-left">
           <PersonalVideoCollection initialCount={4} headingId="about-personal-videos" />
         </div>
       </Solid>
 
-      <Solid colors={palette.about.s4} align="C">
+      <Solid colors={palette.about.s4} align="C" className="v3-cta">
         <div className="v3-text">
-          <ContactTag />
           <H2>{"Get in touch with me"}</H2>
-          <Body>{"Tell me about the move, the property, or the question you are working through."}</Body>
-          <Actions>
-            <Btn href="/contact">{"Get in touch with me"}</Btn>
-          </Actions>
+          <Group>
+            <Body>{"Tell me about the move, the property, or the question you are working through."}</Body>
+            <Actions>
+              <Btn href="/contact">{"Get in touch with me"}</Btn>
+            </Actions>
+          </Group>
         </div>
       </Solid>
     </>
