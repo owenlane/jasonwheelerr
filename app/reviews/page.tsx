@@ -1,16 +1,50 @@
 import type { Metadata } from "next";
-import { ClosingContact,Section,Stars } from "@/components/primitives";
-import { PageIntro,PhotoBand } from "@/components/PhotoSections";
+import CinematicSection from "@/components/v3/CinematicSection";
+import { Actions, Body, Btn, ContactTag, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
 import { reviews } from "@/lib/site";
-export const metadata:Metadata={title:"Reviews",description:"What clients say about working with Jason Wheeler.",alternates:{canonical:"/reviews"},openGraph:{title:"Reviews | Jason Wheeler",description:"What clients say about working with Jason Wheeler."}};
-export default function ReviewsPage(){
- return <>
-  <PageIntro label="Client reviews" heading="What clients say." description="Their experience, in their own words."/>
-  <Section rule={false}><div className="grid gap-x-12 gap-y-14 lg:grid-cols-2">{reviews.map(r=><figure key={r.id} className="flex flex-col border-t pt-6">
-    <Stars rating={r.rating}/><blockquote className="mt-6 font-display text-xl leading-relaxed">“{r.quote}”</blockquote>
-    <figcaption className="mt-7"><p className="font-medium">{r.author}</p><p className="mt-2 text-sm quiet">{r.context}</p><p className="mt-1 text-sm quiet">{r.date}</p></figcaption>
-  </figure>)}</div></Section>
-  <PhotoBand photo={{group:"calico",index:1}} label="Your next step" heading="A conversation about your property."><p>Buying, selling, investing, or preparing a house for what comes next.</p></PhotoBand>
-  <ClosingContact heading="Get in touch with me">Tell me what you have in mind.</ClosingContact>
- </>;
+import { frames, palette } from "@/lib/v3";
+
+export const metadata: Metadata = {
+  title: "Reviews",
+  description: "What clients say about working with Jason Wheeler.",
+  alternates: { canonical: "/reviews" },
+  openGraph: { title: "Reviews | Jason Wheeler", description: "What clients say about working with Jason Wheeler." },
+};
+
+export default function ReviewsPage() {
+  return (
+    <>
+      <CinematicSection frames={frames.reviews} hue={palette.reviews.hue} align="C" priority>
+        <PhotoInner>
+          <div className="v3-text">
+            <H1>{"What clients say."}</H1>
+          </div>
+        </PhotoInner>
+      </CinematicSection>
+
+      <Solid colors={palette.reviews.s2} align="L">
+        {reviews.map((r) => (
+          <figure key={r.id} className="v3-review">
+            <blockquote>{r.quote}</blockquote>
+            <figcaption>
+              <p className="font-semibold">{r.author}</p>
+              <p>{r.context}</p>
+              <p>{r.date}</p>
+            </figcaption>
+          </figure>
+        ))}
+      </Solid>
+
+      <Solid colors={palette.reviews.s3} align="C">
+        <div className="v3-text">
+          <ContactTag />
+          <H2>{"Get in touch with me"}</H2>
+          <Body>{"Tell me what you have in mind."}</Body>
+          <Actions>
+            <Btn href="/contact">{"Get in touch with me"}</Btn>
+          </Actions>
+        </div>
+      </Solid>
+    </>
+  );
 }
