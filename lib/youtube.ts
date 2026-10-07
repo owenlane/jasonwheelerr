@@ -287,5 +287,5 @@ export function formatDate(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? ""
-    : d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+    : d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "America/Los_Angeles" }); // FINAL-4: fixed zone so server (UTC) and browser render the same date — no hydration mismatch
 }
