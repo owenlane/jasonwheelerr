@@ -365,7 +365,7 @@
    layer. No filter/clip on the header (the mobile menu is a separate fixed
    sibling). Route hue from PHOTO-FADE, set as --nav-hue (space-separated RGB).
    ------------------------------------------------------------------------ */
-.site-header { position:fixed; inset:0 0 auto 0; z-index:50; padding:var(--nav-top) 12px 0; pointer-events:none; color:#FFFFFF; }
+.site-header { position:fixed; inset:0 0 auto 0; z-index:50; padding:var(--nav-top) 12px 0; pointer-events:none; color:#FFFFFF; will-change:transform; } /* own compositor layer: keeps the glass blur off the first-scroll commit (R107) */
 .nav-bar { position:relative; max-width:calc(88rem + 24px); margin-inline:auto; height:64px; border-radius:18px; pointer-events:auto; }
 .nav-glass { position:absolute; inset:0; border-radius:18px; background:rgb(var(--nav-hue) / .72); -webkit-backdrop-filter:blur(20px) saturate(110%); backdrop-filter:blur(20px) saturate(110%); border:1px solid rgb(255 255 255 / .18); box-shadow:0 8px 24px rgb(var(--nav-hue) / .16); }
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) { .nav-glass { background:rgb(var(--nav-hue) / .92); } }
