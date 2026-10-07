@@ -1,4 +1,11 @@
 @import "tailwindcss";
+/* D-FONT (FINAL-4): metric-matched fallbacks (Next adjustFontFallback algorithm: size-adjust = web avg width / fallback avg width; overrides = web metric / (UPM × size-adjust)); Plex Sans size-adjust then scaled to 0.985 of the computed value (just under the measured median real-copy ratio 0.9898, 67 site paragraphs) so the fallback never runs wider than the web font on near-boundary lines. font-display stays swap on the web fonts. */
+@font-face { font-family:"Archivo Fallback"; src:local('Arial Bold'), local('Arial-BoldMT'); font-weight:600 900; size-adjust:95.00%; ascent-override:92.42%; descent-override:22.10%; line-gap-override:0.00%; }
+@font-face { font-family:"Archivo Fallback"; src:local('Arial'), local('ArialMT'); font-weight:100 500; size-adjust:98.70%; ascent-override:88.96%; descent-override:21.28%; line-gap-override:0.00%; }
+@font-face { font-family:"IBM Plex Sans Fallback"; src:local('Arial'), local('ArialMT'); font-weight:100 500; size-adjust:99.65%; ascent-override:102.86%; descent-override:27.60%; line-gap-override:0.00%; }
+@font-face { font-family:"IBM Plex Sans Fallback"; src:local('Arial Bold'), local('Arial-BoldMT'); font-weight:600 900; size-adjust:95.84%; ascent-override:106.95%; descent-override:28.69%; line-gap-override:0.00%; }
+@font-face { font-family:"IBM Plex Mono Fallback"; src:local('Courier New'), local('CourierNewPSMT'); font-weight:100 900; size-adjust:99.98%; ascent-override:102.52%; descent-override:27.50%; line-gap-override:0.00%; }
+
 /* V3: neutral identity is global; saturated palettes belong to pictured sections. */
 @theme {
   --color-ink:#1e1b14; --color-ink-soft:#7b5e41;
@@ -8,9 +15,9 @@
   --color-on-surface:#1e1b14; --color-on-surface-2:#7b5e41;
   --color-accent:#7b5e41; --color-accent-solid:#1e1b14; --color-on-accent:#e8e6df;
   --color-amber:#a89c8a; --color-amber-deep:#7b5e41;
-  --font-display:"Archivo Variable","Helvetica Neue",Arial,sans-serif;
-  --font-sans:"IBM Plex Sans Variable",ui-sans-serif,system-ui,sans-serif;
-  --font-spec:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
+  --font-display:"Archivo Variable","Archivo Fallback","Helvetica Neue",Arial,sans-serif;
+  --font-sans:"IBM Plex Sans Variable","IBM Plex Sans Fallback",ui-sans-serif,system-ui,sans-serif;
+  --font-spec:"IBM Plex Mono","IBM Plex Mono Fallback",ui-monospace,SFMono-Regular,monospace;
 }
 @layer base {
   /* Light is the only theme. NAV-FULL: --nav-clear = glass bar bottom (safe-area + 64px) + 12px. */
@@ -26,7 +33,7 @@
   input,select,textarea,button { font:inherit; color:inherit; }
 }
 @layer components {
-  .measure { max-width:66ch; } .measure-tight { max-width:48ch; }
+  .measure { max-width:39.6em; } .measure-tight { max-width:28.8em; } /* FINAL-4: ch → em at Plex Sans 0-advance (.6em): identical when fonts load, font-independent when they do not */
   .quiet { color:var(--color-on-surface-2); } .quieter { color:var(--color-quieter); }
   .bg-surface-2 { --color-on-surface-2:#735639; }
   .hairline { border-top:1px solid color-mix(in srgb,var(--color-line) 65%,transparent); }
@@ -161,7 +168,7 @@
   .v3-name { font-size:clamp(60px,37.14px + 2.976vw,80px); }
   .v3-sub { font-size:clamp(18px,13.43px + .595vw,22px); }
 }
-.v3-body { max-width:56ch; margin-top:1.25rem; color:var(--v3-fg); font-weight:400; }
+.v3-body { max-width:33.6em; margin-top:1.25rem; color:var(--v3-fg); font-weight:400; }
 .v3-body + .v3-body { margin-top:1rem; }
 .v3-align-C .v3-body { margin-inline:auto; }
 .v3-align-R .v3-body { margin-left:auto; }
@@ -259,9 +266,9 @@
 .v3-feature-grid { width:min(1120px, calc(100% - 2 * var(--gutter))); margin-inline:auto; display:grid; }
 .v3-feature-text, .v3-feature-media { min-width:0; }
 .v3-text-left .v3-feature-text { text-align:left; } .v3-text-right .v3-feature-text { text-align:right; }
-.v3-feature .v3-body { max-width:56ch; }
+.v3-feature .v3-body { max-width:33.6em; }
 .v3-text-right .v3-feature-text .v3-body { margin-left:auto; }
-.v3-feature-home .v3-body { max-width:60ch; margin-top:0; }
+.v3-feature-home .v3-body { max-width:36em; margin-top:0; }
 .v3-split-plane, .v3-split-photo { pointer-events:none; }
 .v3-split-photo { overflow:hidden; }
 .v3-split-photo img { opacity:.84; }
