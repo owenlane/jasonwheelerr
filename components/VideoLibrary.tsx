@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CinematicVideo } from "./VideoPlayer";
 import { Rise } from "./v3/motion";
 import { byFilter, propertyFilters, type PropertyCategory, type Video } from "@/lib/youtube";
@@ -15,6 +15,15 @@ const PAGE = 6;
 export default function VideoLibrary({ videos }: { videos: Video[] }) {
   const [active, setActive] = useState<PropertyCategory | "latest">("latest");
   const [shown, setShown] = useState(PAGE);
+  // FINAL-4: after "Show more", focus moves to the first new card's player button (announced by its name).
+  const gridRef = useRef<HTMLDivElement>(null);
+  const focusFrom = useRef<number | null>(null);
+  useEffect(() => {
+    const i = focusFrom.current;
+    if (i === null) return;
+    focusFrom.current = null;
+    gridRef.current?.children[i]?.querySelector<HTMLElement>("button, a[href]")?.focus();
+  }, [shown]);
 
   const available = useMemo(
     () => propertyFilters.filter((f) => f.id === "latest" || byFilter(videos, f.id).length > 0),
@@ -68,7 +77,7 @@ export default function VideoLibrary({ videos }: { videos: Video[] }) {
         {list.length} videos shown.
       </p>
 
-      <div className="mt-8 grid gap-x-8 gap-y-12 md:grid-cols-2 xl:grid-cols-3">
+      <div ref={gridRef} className="mt-8 grid gap-x-8 gap-y-12 md:grid-cols-2 xl:grid-cols-3">
         {list.slice(0, shown).map((v, i) => (
           <Rise key={v.id} delay={Math.min(180, (i % 3) * 60)}>
             <CinematicVideo video={v} />
@@ -80,7 +89,7 @@ export default function VideoLibrary({ videos }: { videos: Video[] }) {
         <button
           data-video-ctrl
           type="button"
-          onClick={() => setShown((n) => n + PAGE)}
+          onClick={() => { focusFrom.current = shown; setShown((n) => n + PAGE); }}
           className="mt-12 inline-flex min-h-12 items-center border border-ink px-7 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] transition-colors hover:bg-ink hover:text-field"
         >
           Show more
