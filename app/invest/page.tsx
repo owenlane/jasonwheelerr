@@ -1,95 +1,83 @@
 import type { Metadata } from "next";
-import { Body, ClosingContact, Cta, DataRows, Display, Section, Shell, Steps } from "@/components/primitives";
-import { VideoGrid } from "@/components/VideoPlayer";
+import CinematicSection from "@/components/v3/CinematicSection";
+import Feature from "@/components/v3/Feature";
+import { Actions, Body, Btn, Group, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
+import { Rise } from "@/components/v3/motion";
+import { CinematicVideo } from "@/components/VideoPlayer";
 import VideoEmpty from "@/components/VideoEmpty";
 import { person } from "@/lib/site";
 import { featured, fetchVideos } from "@/lib/youtube";
+import { feature, featureImages, frames, palette } from "@/lib/v3";
 
 export const revalidate = 3600;
-
 export const metadata: Metadata = {
   title: "Invest",
   description:
-    "Representation for investors buying rentals, fixers and distressed property in Las Vegas and Southern Nevada, with the property walked and filmed on site.",
+    "Help finding investment property in Las Vegas to hold or renovate for resale, with your budget and intended use in mind.",
   alternates: { canonical: "/invest" },
 };
 
-const steps = [
-  { name: "Criteria", detail: "Strategy, budget, target areas, and how much work you will genuinely take on." },
-  { name: "Screening", detail: "Candidates filtered before they cost you time." },
-  { name: "On site", detail: "Walked and filmed. Roof, systems, layout, and what was done badly." },
-  { name: "Execute", detail: "Offer, inspection, escrow — and coordination of the work afterwards." },
-];
-
 export default async function InvestPage() {
-  const videos = await fetchVideos();
-  const proof = featured(videos, ["renovated", "rentals-vacant"], 2);
-
+  const videos = featured(await fetchVideos(), ["rentals-vacant", "renovated"], 2);
   return (
     <>
-      <section className="bg-field">
-        <Shell>
-          <div className="max-w-4xl py-14 sm:py-20">
-            <p className="microlabel">Investors · {person.market}</p>
-            <Display level={1} className="mt-7">
-              SOMEONE HAS BEEN INSIDE IT ALREADY
-            </Display>
-            <p className="measure mt-7 text-[1.0625rem] leading-[1.7] quiet">
-              Investing at a distance means trusting somebody else&rsquo;s description of a building.
-              This works the other way round: walked, filmed, and an honest account of the condition —
-              including when the numbers do not survive contact with the house.
-            </p>
-            <div className="mt-9">
-              <Cta href="/contact?intent=investor">Contact Jason</Cta>
-            </div>
+      <CinematicSection frames={frames.invest} hue={palette.invest.hue} align="C" priority>
+        <PhotoInner>
+          <div className="v3-text">
+            <H1>{"For Investors"}</H1>
+            <Body>{"I help you look for investment property in Las Vegas that fits your budget and the work you’re willing to take on."}</Body>
+            <Actions>
+              <Btn href="/contact?intent=investor">{"Get in touch with me"}</Btn>
+            </Actions>
           </div>
-        </Shell>
-      </section>
+        </PhotoInner>
+      </CinematicSection>
 
-      <Section label="Where this helps" tone="raised">
-        <Display level={2} className="max-w-3xl">
-          THE PROPERTY THIS SUITS
-        </Display>
-        <DataRows
-          rows={[
-            { term: "Buy and hold", detail: "Rental candidates, assessed for what they cost to keep tenanted." },
-            { term: "Fixers", detail: "Houses that need real work — walked, filmed and scoped before an offer." },
-            { term: "Distressed", detail: "Short sales and as-is property, where being on site early matters most." },
-            { term: "Post-tenant", detail: "Turnovers where nobody has seen the inside since the tenants left." },
-            { term: "From out of state", detail: "Full film so a remote decision is made on evidence." },
-            { term: "Already owned", detail: "Ongoing property help on units you hold here." },
-          ]}
-        />
-      </Section>
+      <Feature base={feature.invest} hue={palette.invest.hue} photoSide="right" textAlign="left" photo={featureImages.invest}>
+        <H2>{"What do you want the property to do?"}</H2>
+        <Group>
+          <Body>
+            {
+              "A property to hold and a house to renovate for resale call for different searches. Your budget, timing, and the work you want to take on help define what fits."
+            }
+          </Body>
+        </Group>
+      </Feature>
 
-      <Section label="How it runs">
-        <Display level={2} className="max-w-3xl">
-          FROM CRITERIA TO KEYS
-        </Display>
-        <Steps steps={steps} />
-        <Body className="mt-12">
-          Owning it afterwards from another state is a logistics problem that repeats. Vendors get
-          met on site, turnovers get documented, and the property gets back to rentable or sale-ready
-          without you flying in for each step.
-        </Body>
-        <div className="mt-8">
-          <Cta href="/property-help" variant="outline">Property Help</Cta>
+      <Solid colors={{ ...palette.invest.s3, hue: "21 42 50" }} align="C" className="v3-invest-videos">
+        <div className="v3-text">
+          <H2>{"See the condition on film."}</H2>
+          <Group>
+            <Body>{"Property videos show the condition when filmed."}</Body>
+          </Group>
         </div>
-      </Section>
+        {videos.length ? (
+          <div className="v3-video-grid">
+            {videos.map((v, i) => (
+              <Rise key={v.id} delay={Math.min(180, i * 60)}>
+                <CinematicVideo video={v} />
+              </Rise>
+            ))}
+          </div>
+        ) : (
+          <VideoEmpty showLink={false} />
+        )}
+        <Actions>
+          <Btn href={person.youtubeUrl}>{"Open the channel"}</Btn>
+        </Actions>
+      </Solid>
 
-      <Section label="Walkthrough film" tone="media">
-        <Display level={2} className="max-w-3xl">
-          FIXERS, VACANTS AND FINISHED WORK
-        </Display>
-        {proof.length > 0 ? <VideoGrid videos={proof} /> : <VideoEmpty tone="media" />}
-        <div className="mt-10">
-          <Cta href="/videos" variant="onMedia">YouTube Videos</Cta>
+      <Solid colors={palette.invest.s4} align="C" className="v3-cta">
+        <div className="v3-text">
+          <H2>{"Tell me what you want to buy."}</H2>
+          <Group>
+            <Body>{"Tell me the area, budget, intended use, and how much work you’re comfortable taking on."}</Body>
+            <Actions>
+              <Btn href="/contact?intent=investor">{"Get in touch with me"}</Btn>
+            </Actions>
+          </Group>
         </div>
-      </Section>
-
-      <ClosingContact heading="SEND YOUR CRITERIA" intent="investor">
-        Strategy, budget, target areas, and how much work you are willing to take on.
-      </ClosingContact>
+      </Solid>
     </>
   );
 }

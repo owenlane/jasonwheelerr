@@ -5,7 +5,7 @@
  * property-management services may be presented.
  */
 
-export const SITE_URL = "https://jasonwheeler.vercel.app";
+export const SITE_URL = "https://jasonwheelerr.vercel.app";
 
 export const person = {
   name: "Jason Wheeler",
@@ -30,8 +30,8 @@ export const brokerage = {
   office: "6675 S Tenaya Way, Suite 200, Las Vegas, NV 89113",
 } as const;
 
-/** Supported experience fact. Stated by the client in the final revision. */
-export const yearsExperience = 29;
+/** 30 years of real estate experience, per the approved V3 copy. */
+export const yearsExperience = 30;
 
 /**
  * REVIEWS — verbatim client testimonials supplied in the final revision.
@@ -88,21 +88,37 @@ export const nav = [
   { href: "/buy", label: "Buy" },
   { href: "/sell", label: "Sell" },
   { href: "/invest", label: "Invest" },
-  { href: "/property-help", label: "Property Help" },
+  // R3: exact required replacement for "Property Help".
+  { href: "/renovations", label: "Renovations" },
   { href: "/videos", label: "YouTube Videos" },
-  { href: "/about", label: "About Me" },
+  { href: "/about", label: "About" },
   { href: "/reviews", label: "Reviews" },
   { href: "/contact", label: "Contact" },
 ] as const;
 
-export type InquiryIntent = "buyer" | "seller" | "investor" | "property-help" | "general";
+export type InquiryIntent = "buyer" | "seller" | "investor" | "renovations" | "general";
 
-/** Intent query values are preserved: ?intent=buyer|seller|investor|property-help */
+/**
+ * R3 compatibility. Old inbound links use ?intent=property-help. The value is
+ * kept as a legacy alias so those links land on the Renovations topic with
+ * their context intact, rather than falling back to "general".
+ */
+export const legacyIntentAliases: Record<string, InquiryIntent> = {
+  "property-help": "renovations",
+};
+
+export function resolveIntent(raw: string | undefined | null): InquiryIntent {
+  if (!raw) return "general";
+  if (legacyIntentAliases[raw]) return legacyIntentAliases[raw];
+  return (inquiryIntents.find((i) => i.id === raw)?.id ?? "general") as InquiryIntent;
+}
+
+/** Intent query values: ?intent=buyer|seller|investor|renovations (property-help aliases in) */
 export const inquiryIntents: { id: InquiryIntent; label: string }[] = [
   { id: "buyer", label: "Buying" },
   { id: "seller", label: "Selling" },
   { id: "investor", label: "Investing" },
-  { id: "property-help", label: "Property Help" },
+  { id: "renovations", label: "Renovations" },
   { id: "general", label: "Something Else" },
 ];
 

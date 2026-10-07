@@ -1,76 +1,69 @@
 import type { Metadata } from "next";
-import { Body, ClosingContact, Cta, Display, Section, Shell } from "@/components/primitives";
+import CinematicSection from "@/components/v3/CinematicSection";
+import { Actions, Body, Btn, Group, H1, H2, H3, PhotoInner, Solid } from "@/components/v3/sections";
 import VideoLibrary from "@/components/VideoLibrary";
-import { CinematicVideo } from "@/components/VideoPlayer";
+import PersonalVideoCollection from "@/components/PersonalVideoCollection";
 import { person } from "@/lib/site";
-import { fetchVideos, lifestyleVideos } from "@/lib/youtube";
+import { fetchVideos } from "@/lib/youtube";
+import { frames, palette } from "@/lib/v3";
 
 export const revalidate = 3600;
-
 export const metadata: Metadata = {
   title: "YouTube Videos",
-  description:
-    "Walkthrough film from Jason Wheeler's Las Vegas property channel — listings, renovations, rentals and vacant properties, filmed on site.",
+  description: "Property walkthroughs and personal videos from Jason Wheeler’s YouTube channel.",
   alternates: { canonical: "/videos" },
 };
 
 export default async function VideosPage() {
   const videos = await fetchVideos();
-  const lifestyle = lifestyleVideos(videos);
-
   return (
     <>
-      <section className="bg-field">
-        <Shell>
-          <div className="max-w-4xl py-14 sm:py-20">
-            <p className="microlabel">YouTube · {person.youtubeHandle}</p>
-            <Display level={1} className="mt-7">
-              PROPERTIES, FILMED AS THEY WERE
-            </Display>
-            <p className="measure mt-7 text-[1.0625rem] leading-[1.7] quiet">
-              Houses walked and filmed in one piece, without the edit that removes the inconvenient
-              rooms. Everything here plays on request and links to the original video.
-            </p>
-            <div className="mt-9 flex flex-wrap gap-4">
-              <Cta href={person.youtubeUrl} external>Subscribe on YouTube</Cta>
-              <Cta href="/contact" variant="quiet">Contact Jason</Cta>
-            </div>
+      <CinematicSection frames={frames.videos} hue={palette.videos.hue} align="C" priority>
+        <PhotoInner>
+          <div className="v3-text">
+            <H1>{"YouTube Videos"}</H1>
+            <Body>{"Property walkthroughs and a little life outside real estate."}</Body>
           </div>
-        </Shell>
-      </section>
+        </PhotoInner>
+      </CinematicSection>
 
-      <Section label="Property film">
-        <Display level={2} className="max-w-3xl">
-          THE LIBRARY
-        </Display>
-        <Body className="mt-6">
-          Grouped by what each one shows — a listing, a finished remodel, an empty unit on possession
-          day.
-        </Body>
-        <VideoLibrary videos={videos} />
-      </Section>
+      <Solid colors={{ ...palette.videos.s2, hue: "11 27 46" }} align="C" className="v3-videos-library">
+        <div className="v3-text">
+          <H2>{"Take a look through the houses."}</H2>
+          <Group>
+            <Body>
+              {"Layouts, finishes, and visible condition at the time of filming. Contact me for current property details and availability."}
+            </Body>
+          </Group>
+        </div>
+        <div className="text-left">
+          <VideoLibrary videos={videos} />
+        </div>
+        <div className="v3-text mt-20">
+          <H3 id="personal-videos">{"Away from the properties."}</H3>
+          <Group>
+            <Body>{"Personal videos on fishing, grappling, everyday projects, and other interests."}</Body>
+          </Group>
+        </div>
+        <div className="mt-10 text-left">
+          <PersonalVideoCollection initialCount={10} headingId="personal-videos" />
+        </div>
+        <Actions>
+          <Btn href={person.youtubeUrl}>{"Open the channel"}</Btn>
+        </Actions>
+      </Solid>
 
-      {/* Lifestyle archive. Deliberately its own dark section, far from every
-          property module — it never shares a row, grid or cluster with them. */}
-      {lifestyle.length > 0 && (
-        <Section label="Off the clock" tone="media">
-          <Display level={2} className="max-w-3xl">
-            NOT PROPERTY
-          </Display>
-          <p className="measure mt-6 text-[1.0625rem] leading-[1.7] text-field/70">
-            The rest of the channel. Nothing to do with real estate.
-          </p>
-          <div className="mt-10 grid gap-x-8 gap-y-12 md:grid-cols-2 xl:grid-cols-3">
-            {lifestyle.slice(0, 6).map((v) => (
-              <CinematicVideo key={v.id} video={v} />
-            ))}
-          </div>
-        </Section>
-      )}
-
-      <ClosingContact heading="SEEN SOMETHING YOU WANT TO WALK?">
-        Ask about any property on the channel, or about one you already own.
-      </ClosingContact>
+      <Solid colors={palette.videos.s3} align="C" className="v3-cta">
+        <div className="v3-text">
+          <H2>{"Have a question about a property?"}</H2>
+          <Group>
+            <Body>{"Send me the video or the address, and tell me what you would like to know."}</Body>
+            <Actions>
+              <Btn href="/contact">{"Get in touch with me"}</Btn>
+            </Actions>
+          </Group>
+        </div>
+      </Solid>
     </>
   );
 }

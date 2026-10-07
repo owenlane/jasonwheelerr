@@ -1,4 +1,6 @@
 import { person } from "./site";
+import { personalVideoIds } from "./personal-videos";
+import { videoCatalog } from "./video-catalog";
 
 /**
  * VIDEO SYSTEM
@@ -49,6 +51,23 @@ const DENY_TITLE_PATTERNS = [
   /iphone.*scan|scan.*iphone/i,
 ];
 
+/**
+ * R5 FIX — the ten curated personal videos are classified by ID, not by
+ * title heuristics.
+ *
+ * The title heuristics below were misclassifying real personal content as
+ * property content. The clearest case: "001 Chevy Silverado 2500HD 4x4 WORK
+ * TRUCK utility bed 3\" lift video walk thru" matched GENERAL_PROPERTY on
+ * `\bbed\b` (from "utility bed") and would have been eligible for featuring
+ * as a property walkthrough. The iced tea, dog treat, crypto, disruptive-tech
+ * and keto videos were also outside every LIFESTYLE pattern.
+ *
+ * Matching by stable ID makes this deterministic and immune to title edits,
+ * and satisfies the requirement that personal content is never presented as
+ * real-estate advice or as proof of professional expertise.
+ */
+const PERSONAL_IDS = new Set<string>(personalVideoIds);
+
 /** Lifestyle content. Segregated from all property modules. */
 const LIFESTYLE_PATTERNS = [
   /\bgrappling\b/i,
@@ -85,12 +104,17 @@ function isDenied(v: { id: string; title: string; description: string }): boolea
   return DENY_TITLE_PATTERNS.some((re) => re.test(normalised));
 }
 
-function classify(title: string, description: string): {
+function classify(id: string, title: string, description: string): {
   classification: Classification;
   categories: PropertyCategory[];
   qualifying: boolean;
 } {
   const text = `${title}\n${description}`;
+
+  // Deterministic ID match wins over every title heuristic below.
+  if (PERSONAL_IDS.has(id)) {
+    return { classification: "lifestyle", categories: [], qualifying: false };
+  }
 
   if (LIFESTYLE_PATTERNS.some((re) => re.test(text))) {
     return { classification: "lifestyle", categories: [], qualifying: false };
@@ -135,183 +159,101 @@ function decode(s: string): string {
     .trim();
 }
 
-function parseFeed(xml: string): Video[] {
-  const out: Video[] = [];
+type Entry = { id: string; title: string; published: string; description: string; thumbnail: string };
+
+const ID_RE = /^[A-Za-z0-9_-]{11}$/;
+const validDate = (s: string) => !!s && !Number.isNaN(new Date(s).getTime());
+
+/** Raw feed entries; structurally invalid entries are dropped, never repaired. */
+function parseEntries(xml: string): Entry[] {
+  const out: Entry[] = [];
   for (const raw of xml.split("<entry>").slice(1)) {
     const block = raw.split("</entry>")[0];
     const id = pick(block, "yt:videoId");
     const title = pick(block, "title");
-    if (!id || !title) continue;
-
-    const description = pick(block, "media:description");
-    if (isDenied({ id, title, description })) continue;
-
+    if (!ID_RE.test(id) || !title) continue;
     const thumb = block.match(/<media:thumbnail[^>]*url="([^"]+)"/);
-    const { classification, categories, qualifying } = classify(title, description);
-
-    out.push({
-      id,
-      title,
-      published: pick(block, "published"),
-      description,
-      thumbnail: thumb ? thumb[1] : `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,
-      url: `https://www.youtube.com/watch?v=${id}`,
-      categories,
-      classification,
-      qualifying,
-    });
+    out.push({ id, title, published: pick(block, "published"), description: pick(block, "media:description"), thumbnail: thumb ? thumb[1] : "" });
   }
   return out;
 }
 
-const BROWSER_UA =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
-
-const CATALOG_HEADERS: Record<string, string> = {
-  "user-agent": BROWSER_UA,
-  "accept-language": "en-US,en;q=0.9",
-  cookie: "CONSENT=YES+cb; PREF=hl=en&gl=US",
-};
-
-/** Recent uploads, with the public channel catalog as an API-key-free fallback. */
-export async function fetchVideos(): Promise<Video[]> {
-  const rss = await fetchViaRss();
-  return rss.length > 0 ? rss : fetchViaChannelCatalog();
-}
-
-async function fetchViaRss(): Promise<Video[]> {
-  const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${person.youtubeChannelId}`;
-  try {
-    const res = await fetch(url, {
-      cache: "no-store",
-      headers: { "user-agent": BROWSER_UA, "accept-language": "en-US,en;q=0.9" },
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!res.ok) return [];
-    return parseFeed(await res.text());
-  } catch {
-    return [];
-  }
+function toVideo(e: Entry): Video | null {
+  if (isDenied(e)) return null;
+  const { classification, categories, qualifying } = classify(e.id, e.title, e.description);
+  return {
+    id: e.id,
+    title: e.title,
+    published: e.published,
+    description: e.description,
+    thumbnail: e.thumbnail || `https://i.ytimg.com/vi/${e.id}/maxresdefault.jpg`,
+    url: `https://www.youtube.com/watch?v=${e.id}`,
+    categories,
+    classification,
+    qualifying,
+  };
 }
 
 /**
- * Reads only IDs published by this channel, then applies the same denylist and
- * fail-closed classifier as RSS. Supports both current and legacy YouTube HTML.
+ * P2-R14 deterministic resolution: durable catalog + validated live entries.
+ * Live values update known fields only when valid; a record absent from the live
+ * window is kept. Catalog relative order is preserved. A new dated ID goes right after
+ * the last catalog record dated on/after it (or first if none); each bucket is sorted
+ * by date desc then ID; undated new IDs append in ID order. Classification and the
+ * deny/personal rules are reapplied to the merged metadata.
  */
-async function fetchViaChannelCatalog(): Promise<Video[]> {
-  try {
-    const url = `https://www.youtube.com/channel/${person.youtubeChannelId}/videos?hl=en&gl=US`;
-    const res = await fetch(url, {
-      cache: "no-store",
-      headers: CATALOG_HEADERS,
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!res.ok) return [];
-
-    const found = extractCatalogItems(await res.text()).slice(0, 30);
-    if (found.length === 0) return [];
-
-    const hydrated = await Promise.all(
-      found.map(async (item) => ({
-        id: item.id,
-        title: item.title || (await oembedTitle(item.id)),
-      })),
-    );
-
-    const out: Video[] = [];
-    const seen = new Set<string>();
-    for (const { id, title } of hydrated) {
-      if (!id || !title || seen.has(id)) continue;
-      seen.add(id);
-      if (isDenied({ id, title, description: "" })) continue;
-      const { classification, categories, qualifying } = classify(title, "");
-      out.push({
-        id,
-        title,
-        published: "",
-        description: "",
-        thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
-        url: `https://www.youtube.com/watch?v=${id}`,
-        categories,
-        classification,
-        qualifying,
+export function resolveVideos(catalog: readonly Entry[], live: readonly Entry[]): Video[] {
+  const base = new Map<string, Entry>();
+  for (const e of catalog) if (ID_RE.test(e.id) && e.title && !base.has(e.id)) base.set(e.id, { ...e });
+  const fresh = new Map<string, Entry>();
+  for (const e of live) {
+    if (!ID_RE.test(e.id) || !e.title) continue;
+    const known = base.get(e.id);
+    if (known) {
+      base.set(e.id, {
+        id: e.id,
+        title: e.title || known.title,
+        description: e.description || known.description,
+        published: validDate(known.published) ? known.published : validDate(e.published) ? e.published : known.published,
+        thumbnail: e.thumbnail || known.thumbnail,
       });
-    }
-    return out;
-  } catch {
-    return [];
+    } else if (!fresh.has(e.id)) fresh.set(e.id, { ...e, published: validDate(e.published) ? e.published : "" });
   }
+  const ordered = [...base.values()];
+  const buckets = new Map<number, Entry[]>(); // insert after this catalog index (-1 = before the first)
+  const undated: Entry[] = [];
+  for (const e of fresh.values()) {
+    if (!e.published) { undated.push(e); continue; }
+    const t = new Date(e.published).getTime();
+    let at = -1;
+    ordered.forEach((b, i) => { if (validDate(b.published) && new Date(b.published).getTime() >= t) at = i; });
+    buckets.set(at, [...(buckets.get(at) ?? []), e]);
+  }
+  const byDateThenId = (a: Entry, b: Entry) => new Date(b.published).getTime() - new Date(a.published).getTime() || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  const merged: Entry[] = [...(buckets.get(-1) ?? []).sort(byDateThenId)];
+  ordered.forEach((b, i) => { merged.push(b, ...(buckets.get(i) ?? []).sort(byDateThenId)); });
+  merged.push(...undated.sort((a, b) => (a.id < b.id ? -1 : 1)));
+  return merged.map(toVideo).filter((v): v is Video => v !== null);
 }
 
-function extractCatalogItems(html: string): { id: string; title: string }[] {
-  const items: { id: string; title: string }[] = [];
-  const seen = new Set<string>();
-
-  // Current YouTube catalog shape (lockupViewModel).
-  for (const chunk of html.split('"lockupViewModel"').slice(1)) {
-    const idMatch = chunk.match(
-      /"contentId":"([\w-]{11})","contentType":"LOCKUP_CONTENT_TYPE_VIDEO"/,
-    );
-    if (!idMatch) continue;
-
-    const id = idMatch[1];
-    if (seen.has(id)) continue;
-    seen.add(id);
-    const titleMatch = chunk.match(
-      /"lockupMetadataViewModel":\{"title":\{"content":"((?:[^"\\]|\\.)*)"/,
-    );
-    items.push({ id, title: titleMatch ? decodeJsonString(titleMatch[1]) : "" });
-  }
-
-  // Older YouTube catalog shape retained for compatibility.
-  for (const chunk of html.split('"videoRenderer"').slice(1)) {
-    const idMatch = chunk.match(/"videoId":"([\w-]{11})"/);
-    if (!idMatch) continue;
-
-    const id = idMatch[1];
-    if (seen.has(id)) continue;
-    seen.add(id);
-    const titleMatch =
-      chunk.match(/"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"/) ||
-      chunk.match(/"title":\{"simpleText":"((?:[^"\\]|\\.)*)"/);
-    items.push({ id, title: titleMatch ? decodeJsonString(titleMatch[1]) : "" });
-  }
-
-  return items;
-}
-
-function decodeJsonString(raw: string): string {
+/**
+ * Videos for every surface. The durable catalog renders even when the feed fails
+ * (non-OK, timeout, malformed, empty); valid live entries enhance it.
+ */
+export async function fetchVideos(): Promise<Video[]> {
+  const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${person.youtubeChannelId}`;
+  let live: Entry[] = [];
   try {
-    return JSON.parse(`"${raw}"`) as string;
+    const res = await fetch(url, {
+      next: { revalidate: 3600 },
+      headers: { "user-agent": "jasonwheeler-site/2.0" },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (res.ok) live = parseEntries(await res.text());
   } catch {
-    return raw
-      .replace(/\\u0026/g, "&")
-      .replace(/\\"/g, '"')
-      .replace(/\\\\/g, "\\")
-      .trim();
+    live = [];
   }
-}
-
-async function oembedTitle(id: string): Promise<string> {
-  try {
-    const res = await fetch(
-      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`,
-      {
-        cache: "no-store",
-        headers: { "user-agent": BROWSER_UA },
-        signal: AbortSignal.timeout(8000),
-      },
-    );
-    if (!res.ok) return "";
-    const data: unknown = await res.json();
-    if (data && typeof data === "object" && "title" in data) {
-      const title = (data as { title?: unknown }).title;
-      return typeof title === "string" ? title : "";
-    }
-    return "";
-  } catch {
-    return "";
-  }
+  return resolveVideos(videoCatalog, live);
 }
 
 /** Property videos only. Never returns lifestyle or ambiguous content. */
@@ -345,5 +287,5 @@ export function formatDate(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? ""
-    : d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+    : d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "America/Los_Angeles" }); // FINAL-4: fixed zone so server (UTC) and browser render the same date — no hydration mismatch
 }

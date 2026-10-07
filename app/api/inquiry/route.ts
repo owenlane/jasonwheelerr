@@ -66,6 +66,8 @@ export async function POST(request: Request) {
   const phone = clean(payload.phone);
   const replyPreference = clean(payload.replyPreference);
   const message = clean(payload.message);
+  const clientLocation = clean(payload.clientLocation);
+  const canVisit = clean(payload.canVisit);
 
   if (!(intent in INTENT_LABEL) || !name || !email) {
     return NextResponse.json({ error: "Some required answers are missing." }, { status: 400 });
@@ -92,6 +94,8 @@ export async function POST(request: Request) {
     ["Phone", phone || "Not provided"],
     ["Reply preference", replyPreference || "Not specified"],
     ["Message", message || "Not provided"],
+    ["Client location", clientLocation || "Not provided"],
+    ["On-site availability", canVisit || "Not provided"],
   ];
 
   try {

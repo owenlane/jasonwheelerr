@@ -1,13 +1,14 @@
 import { person } from "@/lib/site";
 
 /** Honest state when the YouTube feed is unreachable. Never invents content. */
-export default function VideoEmpty({ tone = "field" }: { tone?: "field" | "media" }) {
+export default function VideoEmpty({ tone = "field", showLink = true }: { tone?: "field" | "media"; showLink?: boolean }) {
   return (
-    <div className={`mt-10 border p-8 ${tone === "media" ? "border-white/20" : "border-accent"}`}>
+    <div data-video-empty className={`mt-10 border p-8 ${tone === "media" ? "border-white/20" : "border-accent"}`}>
       <p className={`measure text-[0.9375rem] leading-relaxed ${tone === "media" ? "text-field/70" : "quiet"}`}>
         The video list is loading from YouTube. Everything is on the channel itself.
       </p>
-      <a
+      {showLink && <a
+        data-video-ctrl
         href={person.youtubeUrl}
         target="_blank"
         rel="noopener noreferrer"
@@ -17,7 +18,7 @@ export default function VideoEmpty({ tone = "field" }: { tone?: "field" | "media
       >
         Open the channel
         <span className="sr-only"> (opens in a new tab)</span>
-      </a>
+      </a>}
     </div>
   );
 }

@@ -1,102 +1,80 @@
 import type { Metadata } from "next";
-import { Display, Section, Shell } from "@/components/primitives";
+import CinematicSection from "@/components/v3/CinematicSection";
+import { Body, Group, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
+import { Rise } from "@/components/v3/motion";
 import InquiryForm from "@/components/InquiryForm";
-import { brokerage, inquiryIntents, person, type InquiryIntent } from "@/lib/site";
+import { brokerage, person, resolveIntent } from "@/lib/site";
+import { frames, palette } from "@/lib/v3";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: "Get in touch with me",
   description:
-    "Contact Jason Wheeler about buying, selling or investing in Las Vegas, or about a property here that needs someone on the ground.",
+    "Call or text Jason Wheeler at 714-928-8905, or send an inquiry about buying, selling, investing, or renovations.",
   alternates: { canonical: "/contact" },
 };
 
-const VALID = new Set<string>(inquiryIntents.map((i) => i.id));
-
-export default async function ContactPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ intent?: string }>;
-}) {
+export default async function ContactPage({ searchParams }: { searchParams: Promise<{ intent?: string }> }) {
   const params = await searchParams;
-  const intent: InquiryIntent =
-    params.intent && VALID.has(params.intent) ? (params.intent as InquiryIntent) : "general";
-
   return (
     <>
-      <section className="bg-field">
-        <Shell>
-          <div className="max-w-4xl py-14 sm:py-20">
-            <p className="microlabel">{brokerage.name} · {person.market}</p>
-            <Display level={1} className="mt-7">
-              CONTACT JASON
-            </Display>
-            <p className="measure mt-7 text-[1.0625rem] leading-[1.7] quiet">
-              A house you want to buy, one you need to sell, a deal you are weighing, or a property
-              sitting here that somebody has to go and look at.
-            </p>
+      <CinematicSection frames={frames.contact} hue={palette.contact.hue} align="C" priority>
+        <PhotoInner>
+          <div className="v3-text">
+            <H1>{"Get in touch with me"}</H1>
+            <Body>{"Call, text, or send a message with an address, an area, or a question."}</Body>
           </div>
-        </Shell>
-      </section>
+        </PhotoInner>
+      </CinematicSection>
 
-      <Section label="Send a message">
-        <div className="grid gap-x-16 gap-y-14 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)]">
-          <div>
-            <InquiryForm initialIntent={intent} />
-          </div>
-
-          <div className="lg:pt-2">
-            <p className="microlabel">Or reach him directly</p>
-            <ul className="mt-6 space-y-5">
-              <li>
-                <a href={person.phoneHref} className="font-display text-base transition-colors hover:text-support">
-                  {person.phone}
-                </a>
-                <span className="mt-1 block text-[0.8125rem] quieter">Call</span>
-              </li>
-              <li>
-                <a href={person.smsHref} className="font-display text-base transition-colors hover:text-support">
-                  {person.phone}
-                </a>
-                <span className="mt-1 block text-[0.8125rem] quieter">Text</span>
-              </li>
-              <li>
-                <a href={`mailto:${person.email}`} className="text-[0.9375rem] font-medium link-line">
-                  {person.email}
-                </a>
-                <span className="mt-1 block text-[0.8125rem] quieter">Email</span>
-              </li>
-              <li>
-                <a href={person.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-[0.9375rem] font-medium link-line">
-                  {person.instagramHandle}
-                  <span className="sr-only"> (opens in a new tab)</span>
-                </a>
-                <span className="mt-1 block text-[0.8125rem] quieter">Instagram</span>
-              </li>
-              <li>
-                <a href={person.youtubeUrl} target="_blank" rel="noopener noreferrer" className="text-[0.9375rem] font-medium link-line">
-                  {person.youtubeHandle}
-                  <span className="sr-only"> (opens in a new tab)</span>
-                </a>
-                <span className="mt-1 block text-[0.8125rem] quieter">YouTube</span>
-              </li>
-            </ul>
-
-            <div className="mt-10 border-t border-accent pt-6">
-              <p className="microlabel">Brokerage</p>
-              <p className="mt-3 text-[0.875rem] leading-relaxed quiet">
-                {brokerage.name}
-                <br />
-                {brokerage.office}
-                <br />
-                Managing broker: {brokerage.managingBroker}
-              </p>
-              <p className="mt-4 text-[0.875rem] leading-relaxed quieter">
-                Nevada real estate salesperson {person.licenseNumber} · Public ID {person.publicId}
-              </p>
-            </div>
-          </div>
+      <Solid colors={palette.contact.s2} align="C">
+        <div className="v3-text">
+          <H2>{"Send a message"}</H2>
+          <Group>
+            <Body>{"Tell me what you have in mind and your timing."}</Body>
+          </Group>
         </div>
-      </Section>
+        <Rise className="v3-form-shell">
+          <InquiryForm initialIntent={resolveIntent(params.intent)} />
+        </Rise>
+      </Solid>
+
+      <Solid colors={palette.contact.s3} align="C" className="v3-cta">
+        <div className="v3-text">
+          <H2>{"Reach me directly"}</H2>
+          <Rise>
+          <ul className="v3-direct">
+            <li>
+              <a href={person.phoneHref}>{person.phone}</a>
+              <p>{"Call"}</p>
+            </li>
+            <li>
+              <a href={person.smsHref}>{"Send a text"}</a>
+            </li>
+            <li>
+              <a href={`mailto:${person.email}`}>{person.email}</a>
+            </li>
+            <li>
+              <a href={person.instagramUrl} target="_blank" rel="noopener noreferrer">
+                {`Instagram ${person.instagramHandle}`}
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </li>
+            <li>
+              <a href={person.youtubeUrl} target="_blank" rel="noopener noreferrer">
+                {`YouTube ${person.youtubeHandle}`}
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </li>
+          </ul>
+          <div className="v3-brokerage">
+            <p className="font-semibold">{brokerage.name}</p>
+            <p>{brokerage.office}</p>
+            <p>{`Managing broker: ${brokerage.managingBroker}`}</p>
+            <p>{`Nevada real estate salesperson ${person.licenseNumber}`}</p>
+          </div>
+          </Rise>
+        </div>
+      </Solid>
     </>
   );
 }
