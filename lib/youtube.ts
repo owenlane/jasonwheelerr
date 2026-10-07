@@ -1,5 +1,6 @@
 import { person } from "./site";
 import { personalVideoIds } from "./personal-videos";
+import { videoCatalog } from "./video-catalog";
 
 /**
  * VIDEO SYSTEM
@@ -158,49 +159,101 @@ function decode(s: string): string {
     .trim();
 }
 
-function parseFeed(xml: string): Video[] {
-  const out: Video[] = [];
+type Entry = { id: string; title: string; published: string; description: string; thumbnail: string };
+
+const ID_RE = /^[A-Za-z0-9_-]{11}$/;
+const validDate = (s: string) => !!s && !Number.isNaN(new Date(s).getTime());
+
+/** Raw feed entries; structurally invalid entries are dropped, never repaired. */
+function parseEntries(xml: string): Entry[] {
+  const out: Entry[] = [];
   for (const raw of xml.split("<entry>").slice(1)) {
     const block = raw.split("</entry>")[0];
     const id = pick(block, "yt:videoId");
     const title = pick(block, "title");
-    if (!id || !title) continue;
-
-    const description = pick(block, "media:description");
-    if (isDenied({ id, title, description })) continue;
-
+    if (!ID_RE.test(id) || !title) continue;
     const thumb = block.match(/<media:thumbnail[^>]*url="([^"]+)"/);
-    const { classification, categories, qualifying } = classify(id, title, description);
-
-    out.push({
-      id,
-      title,
-      published: pick(block, "published"),
-      description,
-      thumbnail: thumb ? thumb[1] : `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,
-      url: `https://www.youtube.com/watch?v=${id}`,
-      categories,
-      classification,
-      qualifying,
-    });
+    out.push({ id, title, published: pick(block, "published"), description: pick(block, "media:description"), thumbnail: thumb ? thumb[1] : "" });
   }
   return out;
 }
 
-/** Recent uploads. Empty array on failure — the site never breaks on a feed outage. */
+function toVideo(e: Entry): Video | null {
+  if (isDenied(e)) return null;
+  const { classification, categories, qualifying } = classify(e.id, e.title, e.description);
+  return {
+    id: e.id,
+    title: e.title,
+    published: e.published,
+    description: e.description,
+    thumbnail: e.thumbnail || `https://i.ytimg.com/vi/${e.id}/maxresdefault.jpg`,
+    url: `https://www.youtube.com/watch?v=${e.id}`,
+    categories,
+    classification,
+    qualifying,
+  };
+}
+
+/**
+ * P2-R14 deterministic resolution: durable catalog + validated live entries.
+ * Live values update known fields only when valid; a record absent from the live
+ * window is kept. Catalog relative order is preserved. A new dated ID goes right after
+ * the last catalog record dated on/after it (or first if none); each bucket is sorted
+ * by date desc then ID; undated new IDs append in ID order. Classification and the
+ * deny/personal rules are reapplied to the merged metadata.
+ */
+export function resolveVideos(catalog: readonly Entry[], live: readonly Entry[]): Video[] {
+  const base = new Map<string, Entry>();
+  for (const e of catalog) if (ID_RE.test(e.id) && e.title && !base.has(e.id)) base.set(e.id, { ...e });
+  const fresh = new Map<string, Entry>();
+  for (const e of live) {
+    if (!ID_RE.test(e.id) || !e.title) continue;
+    const known = base.get(e.id);
+    if (known) {
+      base.set(e.id, {
+        id: e.id,
+        title: e.title || known.title,
+        description: e.description || known.description,
+        published: validDate(known.published) ? known.published : validDate(e.published) ? e.published : known.published,
+        thumbnail: e.thumbnail || known.thumbnail,
+      });
+    } else if (!fresh.has(e.id)) fresh.set(e.id, { ...e, published: validDate(e.published) ? e.published : "" });
+  }
+  const ordered = [...base.values()];
+  const buckets = new Map<number, Entry[]>(); // insert after this catalog index (-1 = before the first)
+  const undated: Entry[] = [];
+  for (const e of fresh.values()) {
+    if (!e.published) { undated.push(e); continue; }
+    const t = new Date(e.published).getTime();
+    let at = -1;
+    ordered.forEach((b, i) => { if (validDate(b.published) && new Date(b.published).getTime() >= t) at = i; });
+    buckets.set(at, [...(buckets.get(at) ?? []), e]);
+  }
+  const byDateThenId = (a: Entry, b: Entry) => new Date(b.published).getTime() - new Date(a.published).getTime() || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  const merged: Entry[] = [...(buckets.get(-1) ?? []).sort(byDateThenId)];
+  ordered.forEach((b, i) => { merged.push(b, ...(buckets.get(i) ?? []).sort(byDateThenId)); });
+  merged.push(...undated.sort((a, b) => (a.id < b.id ? -1 : 1)));
+  return merged.map(toVideo).filter((v): v is Video => v !== null);
+}
+
+/**
+ * Videos for every surface. The durable catalog renders even when the feed fails
+ * (non-OK, timeout, malformed, empty); valid live entries enhance it.
+ */
 export async function fetchVideos(): Promise<Video[]> {
   const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${person.youtubeChannelId}`;
+  let live: Entry[] = [];
   try {
     const res = await fetch(url, {
       next: { revalidate: 3600 },
       headers: { "user-agent": "jasonwheeler-site/2.0" },
       signal: AbortSignal.timeout(6000),
     });
-    if (!res.ok) return [];
-    return parseFeed(await res.text());
+    if (res.ok) live = parseEntries(await res.text());
   } catch {
-    return [];
+    live = [];
   }
+  return resolveVideos(videoCatalog, live);
 }
 
 /** Property videos only. Never returns lifestyle or ambiguous content. */
