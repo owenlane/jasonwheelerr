@@ -15,7 +15,7 @@ export default function PrivacyPage() {
         <Shell>
           <div className="page-intro">
             <p className="microlabel">Privacy</p>
-            <Display level={1} className="mt-7">
+            <Display level={1} className="mt-7 [overflow-wrap:anywhere]">
               Your information on this site.
             </Display>
             <p className="measure mt-7 text-[1.0625rem] leading-[1.7] quiet">
@@ -59,7 +59,6 @@ export default function PrivacyPage() {
         </Body>
         <Body className="mt-5">
           No advertising or tracking cookies are set, and no third-party analytics run on this site.
-          Your choice of light or dark theme is saved in your browser’s local storage.
         </Body>
         <Body className="mt-5">
           Video thumbnails load from YouTube&rsquo;s image servers. A video player is only loaded
