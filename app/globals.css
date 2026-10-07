@@ -13,8 +13,8 @@
   --font-spec:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
 }
 @layer base {
-  /* JWV3-FINAL-2: light is the only theme. --nav-clear = glass bar bottom (12px inset + 64px) + 12px. */
-  :root { color-scheme:light; --focus:#7b5e41; --nav-top:max(12px, env(safe-area-inset-top)); --nav-clear:calc(var(--nav-top) + 64px + 12px); }
+  /* Light is the only theme. NAV-FULL: --nav-clear = glass bar bottom (safe-area + 64px) + 12px. */
+  :root { color-scheme:light; --focus:#7b5e41; --nav-top:env(safe-area-inset-top, 0px); --nav-clear:calc(var(--nav-top) + 64px + 12px); }
   * { border-color:var(--color-line); min-width:0; }
   html { -webkit-text-size-adjust:100%; scroll-padding-top:var(--nav-clear); }
   body { background:var(--color-paper); color:var(--color-ink); font-family:var(--font-sans); font-size:1.0625rem; line-height:1.62; -webkit-font-smoothing:antialiased; }
@@ -133,18 +133,9 @@
 .v3-bg { position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; background:var(--v3-bg-paint,var(--v3-bg)); }
 .v3-content { position:relative; z-index:1; width:100%; }
 
-/* EDGE (R11): outgoing background stays opaque; the incoming background carries ONE
-   mask 0→1 across a seam centred on the boundary. Footer join: last 32/24/16px. */
-.v3-sec:has(+ .v3-sec) > .v3-bg { bottom:calc(var(--seam) / -2); }
-.v3-sec + .v3-sec > .v3-bg {
-  top:calc(var(--seam) / -2);
-  --seam-mask:linear-gradient(to bottom,rgb(0 0 0 / 0) 0,rgb(0 0 0 / .043) calc(var(--seam) * .125),rgb(0 0 0 / .156) calc(var(--seam) * .25),rgb(0 0 0 / .316) calc(var(--seam) * .375),rgb(0 0 0 / .5) calc(var(--seam) * .5),rgb(0 0 0 / .684) calc(var(--seam) * .625),rgb(0 0 0 / .844) calc(var(--seam) * .75),rgb(0 0 0 / .957) calc(var(--seam) * .875),#000 var(--seam));
-  -webkit-mask-image:var(--seam-mask); mask-image:var(--seam-mask);
-}
-.v3-sec:last-child > .v3-bg::after {
-  content:""; position:absolute; inset:auto 0 0 0; height:var(--join); z-index:6;
-  background:linear-gradient(to bottom,rgb(17 16 11 / 0) 0,rgb(17 16 11 / .043) 12.5%,rgb(17 16 11 / .156) 25%,rgb(17 16 11 / .316) 37.5%,rgb(17 16 11 / .5) 50%,rgb(17 16 11 / .684) 62.5%,rgb(17 16 11 / .844) 75%,rgb(17 16 11 / .957) 87.5%,rgb(17 16 11) 100%);
-}
+/* HARD-EDGE (P2-R1): each section clips its decorative background inside its own box;
+   adjacent sections meet at a straight 0px join. No seam masks, extensions or footer strip. */
+.v3-sec { position:relative; }
 
 .v3-align-C { text-align:center; } .v3-align-L { text-align:left; } .v3-align-R { text-align:right; }
 .v3-wrap { max-width:88rem; margin-inline:auto; padding-inline:1.5rem; }
@@ -231,11 +222,8 @@
 /* Section/block rise, split-line heading reveal, image cover reveal. */
 [data-rise="armed"] { transform:translateY(16px); }
 [data-rise="in"] { transform:none; transition:transform 600ms var(--ease) var(--rise-delay,0ms); }
-.v3-line { display:block; overflow:hidden; padding:0 .08em .14em; margin:0 -.08em -.14em; }
-[data-reveal="armed"], [data-reveal="in"] { display:flow-root; } /* keep the line margins inside: no height change when the split is removed */
-.v3-line-in { display:block; }
-[data-reveal="armed"] .v3-line-in { transform:translateY(105%); }
-[data-reveal="in"] .v3-line-in { transform:none; transition:transform 600ms var(--ease); transition-delay:min(calc(var(--i) * 60ms),180ms); }
+[data-reveal="armed"] { transform:translateY(12px); } /* NO-SHIFT-REVEAL: whole heading, opacity 1, text tree unchanged */
+[data-reveal="in"] { transform:none; transition:transform 600ms var(--ease); }
 .v3-cover { position:absolute; inset:0; z-index:4; background:var(--v3-bg); transform:translateX(101%); pointer-events:none; }
 .v3-cover[data-cover="armed"] { transform:none; }
 .v3-cover[data-cover="in"] { transform:translateX(101%); transition:transform 700ms var(--ease); }
@@ -260,41 +248,65 @@
 .v3-home-contact { min-height:auto; padding-block:clamp(4rem,1.5rem + 5.556vw,6.5rem); }
 .v3-home-contact .v3-body { max-width:40rem; }
 
-/* FEATURE (R27–R36, R44–R78) */
+/* SPLIT-BG (P2-R2–R10): one landscape per section as the real background.
+   ≥900: seam C ± H, H = min(6% W, 86.4px); photo plane on its half + seam, one stationary
+   nine-stop mask in section coordinates; text columns end ≥24px outside the seam.
+   <900: text first, then the same photo as an edge-to-edge band with an internal top seam.
+   Opacity .84, scrim 0. Only Home keeps a foreground frame (approved headshot). */
+.v3-split { container-type:inline-size; --sh:min(6cqw, 86.4px); --band-gap:24px; --band-seam:32px; }
+@media (min-width:600px) { .v3-split { --band-gap:32px; --band-seam:48px; } }
 .v3-feature { padding-block:var(--feat-pad); }
-.v3-feature-grid { position:relative; width:min(1120px,calc(100% - 2 * var(--gutter))); margin-inline:auto; display:grid; gap:var(--feat-gap); align-items:center; }
-.v3-feature-text,.v3-feature-media { min-width:0; }
+.v3-feature-grid { width:min(1120px, calc(100% - 2 * var(--gutter))); margin-inline:auto; display:grid; }
+.v3-feature-text, .v3-feature-media { min-width:0; }
 .v3-text-left .v3-feature-text { text-align:left; } .v3-text-right .v3-feature-text { text-align:right; }
 .v3-feature .v3-body { max-width:56ch; }
 .v3-text-right .v3-feature-text .v3-body { margin-left:auto; }
 .v3-feature-home .v3-body { max-width:60ch; margin-top:0; }
+.v3-split-plane, .v3-split-photo { pointer-events:none; }
+.v3-split-photo { overflow:hidden; }
+.v3-split-photo img { opacity:.84; }
 @media (min-width:900px) {
-  .v3-feature-grid { gap:48px; }
-  .v3-feature-media-left .v3-feature-grid { grid-template-columns:minmax(0,42fr) minmax(0,58fr); }
-  .v3-feature-media-left .v3-feature-media { grid-column:1; grid-row:1; }
-  .v3-feature-media-left .v3-feature-text { grid-column:2; grid-row:1; }
-  .v3-feature-media-right .v3-feature-grid { grid-template-columns:minmax(0,58fr) minmax(0,42fr); }
-}
-.v3-media-frame { position:relative; overflow:hidden; border-radius:12px; background:var(--v3-bg); border:1px solid rgb(255 255 255 / .24); box-shadow:0 18px 48px rgb(var(--v3-hue) / .24),0 4px 12px rgb(var(--v3-hue) / .18); }
-.v3-media-frame::after { content:""; position:absolute; inset:0; z-index:5; border-radius:inherit; box-shadow:inset 0 0 0 1px rgb(255 255 255 / .08); pointer-events:none; }
-.v3-media-frame img { display:block; width:100%; height:auto; opacity:var(--media-op,.9); }
-.v3-feature-buy { --media-op:.55; }
-/* Home headshot: 4:5, ≤320px beside the bio; narrow stacks bio first, smaller centred portrait. */
-.v3-feature-home .v3-media-frame { width:clamp(144px,42vw,180px); margin-inline:auto; }
-.v3-feature-home .v3-media-frame img { aspect-ratio:1245 / 1556; opacity:1; }
-@media (min-width:900px) { .v3-feature-home .v3-media-frame { width:min(100%,320px); margin-inline:auto 0; } }
-/* Faint still behind the text: opacity × mask once; media side stays solid base. */
-.v3-faint { position:absolute; inset:0; opacity:var(--faint-op,.14); }
-@media (min-width:900px) {
-  .v3-feature-media-left .v3-faint { --fm:linear-gradient(90deg,rgb(0 0 0 / 0) 0,rgb(0 0 0 / 0) 25%,rgb(0 0 0 / .03) 35%,rgb(0 0 0 / .14) 45%,rgb(0 0 0 / .42) 55%,rgb(0 0 0 / .78) 65%,#000 78%,#000 100%); -webkit-mask-image:var(--fm); mask-image:var(--fm); }
-  .v3-feature-media-right .v3-faint { --fm:linear-gradient(270deg,rgb(0 0 0 / 0) 0,rgb(0 0 0 / 0) 25%,rgb(0 0 0 / .03) 35%,rgb(0 0 0 / .14) 45%,rgb(0 0 0 / .42) 55%,rgb(0 0 0 / .78) 65%,#000 78%,#000 100%); -webkit-mask-image:var(--fm); mask-image:var(--fm); }
+  .v3-split { --gutter:24px; }
+  .v3-feature-grid { grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:calc(2 * var(--sh) + 48px); align-items:center; }
+  /* Containing block for the plane is the section itself (full-section coordinates). */
+  .v3-split .v3-content, .v3-split .v3-feature-grid, .v3-split .v3-feature-media { position:static; }
+  .v3-split .v3-feature-text, .v3-split .v3-media-frame { position:relative; z-index:1; }
+  .v3-photo-right .v3-feature-text { grid-column:1; grid-row:1; } .v3-photo-right .v3-feature-media { grid-column:2; grid-row:1; }
+  .v3-photo-left .v3-feature-text { grid-column:2; grid-row:1; } .v3-photo-left .v3-feature-media { grid-column:1; grid-row:1; }
+  .v3-split-plane { position:absolute; inset:0; z-index:0; overflow:hidden; --m:linear-gradient(var(--dir),
+    rgb(0 0 0 / 0) 0, rgb(0 0 0 / 0) calc(50% - var(--sh)),
+    rgb(0 0 0 / .043) calc(50% - var(--sh) * .75), rgb(0 0 0 / .156) calc(50% - var(--sh) * .5),
+    rgb(0 0 0 / .316) calc(50% - var(--sh) * .25), rgb(0 0 0 / .5) 50%,
+    rgb(0 0 0 / .684) calc(50% + var(--sh) * .25), rgb(0 0 0 / .844) calc(50% + var(--sh) * .5),
+    rgb(0 0 0 / .957) calc(50% + var(--sh) * .75), #000 calc(50% + var(--sh)), #000 100%);
+    -webkit-mask-image:var(--m); mask-image:var(--m); }
+  .v3-photo-right .v3-split-plane { --dir:90deg; } .v3-photo-left .v3-split-plane { --dir:270deg; }
+  .v3-split-photo { position:absolute; top:0; bottom:0; }
+  .v3-photo-right .v3-split-photo { left:calc(50% - var(--sh)); right:0; }
+  .v3-photo-left .v3-split-photo { left:0; right:calc(50% - var(--sh)); }
+  /* Home: portrait ≤320px in the photo half, right-aligned bio on the solid half. */
+  .v3-feature-home .v3-media-frame { width:min(100%,320px); margin-inline:auto 0; }
 }
 @media (max-width:899px) {
-  .v3-faint { --te:calc(var(--feat-text-end,60%) + var(--seam) / 2); --fm:linear-gradient(180deg,#000 0,#000 calc(var(--te) - 32px),rgb(0 0 0 / 0) var(--te)); -webkit-mask-image:var(--fm); mask-image:var(--fm); }
+  .v3-split.v3-feature { padding-bottom:0; }
+  .v3-feature-grid { grid-template-columns:minmax(0,1fr); row-gap:var(--band-gap); }
+  /* The band: full section width, 16:9, ending at the section's hard bottom. */
+  .v3-split .v3-feature-media { position:relative; margin-inline:calc(-1 * var(--gutter)); min-height:56.25cqw; }
+  .v3-split-plane { position:absolute; inset:0; overflow:hidden;
+    --m:linear-gradient(180deg, rgb(0 0 0 / 0) 0, rgb(0 0 0 / .043) calc(var(--band-seam) * .125), rgb(0 0 0 / .156) calc(var(--band-seam) * .25), rgb(0 0 0 / .316) calc(var(--band-seam) * .375), rgb(0 0 0 / .5) calc(var(--band-seam) * .5), rgb(0 0 0 / .684) calc(var(--band-seam) * .625), rgb(0 0 0 / .844) calc(var(--band-seam) * .75), rgb(0 0 0 / .957) calc(var(--band-seam) * .875), #000 var(--band-seam));
+    -webkit-mask-image:var(--m); mask-image:var(--m); }
+  .v3-split-photo { position:absolute; inset:0; }
+  /* Home: centred bio; band grows to contain the smaller portrait and its full shadow. */
+  .v3-feature-home .v3-feature-text { text-align:center; }
+  .v3-feature-home .v3-feature-text .v3-body { margin-inline:auto; }
+  .v3-feature-home .v3-feature-media { display:flex; justify-content:center; align-items:flex-start; padding-top:calc(var(--band-seam) + 16px); padding-bottom:72px; }
+  .v3-feature-home .v3-media-frame { position:relative; z-index:1; width:clamp(144px,42vw,180px); }
 }
-/* Invest § 2 full-bleed still */
-.v3-invest2 { min-height:auto; padding-block:var(--feat-pad); }
-.v3-invest2 .v3-body { max-width:640px; }
+/* Home headshot frame (the only foreground photo frame). */
+.v3-media-frame { position:relative; overflow:hidden; border-radius:12px; background:var(--v3-bg); border:1px solid rgb(255 255 255 / .24); box-shadow:0 18px 48px rgb(var(--v3-hue) / .24),0 4px 12px rgb(var(--v3-hue) / .18); }
+.v3-media-frame::after { content:""; position:absolute; inset:0; z-index:5; border-radius:inherit; box-shadow:inset 0 0 0 1px rgb(255 255 255 / .08); pointer-events:none; }
+.v3-media-frame img { display:block; width:100%; height:auto; }
+.v3-feature-home .v3-media-frame img { aspect-ratio:1245 / 1556; opacity:1; }
 
 /* PINK (R39) is applied as the Home § 3 background paint. */
 
@@ -339,6 +351,18 @@
 .v3-align-C .v3-video-grid > * { width:100%; }
 @media (min-width:768px) { .v3-align-C .v3-video-grid > * { width:calc(50% - 1rem); } }
 .v3-align-C .v3-personal [aria-expanded] { display:flex; width:fit-content; margin-inline:auto; }
+/* CENTER-SECTION (P2-R17–R19): groups centre as a whole; card titles/dates keep their baseline alignment. */
+.v3-invest-videos .v3-video-grid { text-align:left; } /* Invest cards were left-aligned at baseline */
+.v3-videos-library [role="tablist"] { justify-content:center; }
+.v3-videos-library [role="tablist"] ~ div.grid { display:flex; flex-wrap:wrap; justify-content:center; column-gap:2rem; row-gap:3rem; }
+.v3-videos-library [role="tablist"] ~ div.grid > * { width:100%; }
+@media (min-width:768px) { .v3-videos-library [role="tablist"] ~ div.grid > * { width:calc((100% - 2rem) / 2); } }
+@media (min-width:1280px) { .v3-videos-library [role="tablist"] ~ div.grid > * { width:calc((100% - 4rem) / 3); } }
+.v3-videos-library button[data-video-ctrl] { display:flex; width:fit-content; margin-inline:auto; }
+.v3-videos-library ul.grid { display:flex; flex-wrap:wrap; justify-content:center; gap:1.5rem; }
+.v3-videos-library ul.grid > li { width:100%; }
+@media (min-width:640px) { .v3-videos-library ul.grid > li { width:calc((100% - 1.5rem) / 2); } }
+@media (min-width:1024px) { .v3-videos-library ul.grid > li { width:calc((100% - 3rem) / 3); } }
 
 /* REVIEWS (R86–R95): one red-rock section, centred heading, two opaque white cards. */
 .v3-reviews { min-height:auto; }
@@ -365,12 +389,12 @@
    layer. No filter/clip on the header (the mobile menu is a separate fixed
    sibling). Route hue from PHOTO-FADE, set as --nav-hue (space-separated RGB).
    ------------------------------------------------------------------------ */
-.site-header { position:fixed; inset:0 0 auto 0; z-index:50; padding:var(--nav-top) 12px 0; pointer-events:none; color:#FFFFFF; will-change:transform; } /* own compositor layer: keeps the glass blur off the first-scroll commit (R107) */
-.nav-bar { position:relative; max-width:calc(88rem + 24px); margin-inline:auto; height:64px; border-radius:18px; pointer-events:auto; }
-.nav-glass { position:absolute; inset:0; border-radius:18px; background:rgb(var(--nav-hue) / .72); -webkit-backdrop-filter:blur(20px) saturate(110%); backdrop-filter:blur(20px) saturate(110%); border:1px solid rgb(255 255 255 / .18); box-shadow:0 8px 24px rgb(var(--nav-hue) / .16); }
+.site-header { position:fixed; inset:0 0 auto 0; z-index:50; pointer-events:none; color:#FFFFFF; will-change:transform; } /* own compositor layer: keeps the glass blur off the first-scroll commit (R107) */
+.nav-bar { position:relative; height:calc(64px + var(--nav-top)); padding-top:var(--nav-top); pointer-events:auto; } /* NAV-FULL (P2-R11): edge-to-edge rectangle */
+.nav-glass { position:absolute; inset:0; clip-path:inset(0); background:rgb(var(--nav-hue) / .72); -webkit-backdrop-filter:blur(20px) saturate(110%); backdrop-filter:blur(20px) saturate(110%); border:1px solid rgb(255 255 255 / .18); box-shadow:0 8px 24px rgb(var(--nav-hue) / .16); }
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) { .nav-glass { background:rgb(var(--nav-hue) / .92); } }
-.nav-inner { position:relative; display:flex; height:100%; align-items:center; justify-content:space-between; gap:1.5rem; padding-inline:1.25rem; }
-@media (min-width:640px) { .nav-inner { padding-inline:1.75rem; } }
+.nav-inner { position:relative; display:flex; height:64px; max-width:calc(88rem + 24px); margin-inline:auto; align-items:center; justify-content:space-between; gap:1.5rem; padding-inline:max(1.25rem, env(safe-area-inset-left)) max(1.25rem, env(safe-area-inset-right)); }
+@media (min-width:640px) { .nav-inner { padding-inline:max(1.75rem, env(safe-area-inset-left)) max(1.75rem, env(safe-area-inset-right)); } }
 .site-header a, .site-header button { color:#FFFFFF; }
 .nav-link { text-decoration:underline; text-decoration-color:transparent; text-underline-offset:.45em; text-decoration-thickness:1.5px; transition:text-decoration-color 240ms; }
 .nav-link:hover, .nav-link[aria-current="page"] { text-decoration-color:currentColor; }

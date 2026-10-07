@@ -26,7 +26,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
         </PhotoInner>
       </CinematicSection>
 
-      <Solid colors={palette.contact.s2} align="L">
+      <Solid colors={palette.contact.s2} align="C">
         <div className="v3-text">
           <H2>{"Send a message"}</H2>
           <Group>

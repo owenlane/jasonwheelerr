@@ -38,9 +38,9 @@ export default async function HomePage() {
         className="v3-feature-home"
         base={feature.home}
         hue={palette.home.hue}
-        mediaSide="left"
+        photoSide="left"
         textAlign="right"
-        faint={featureImages.home}
+        photo={featureImages.home}
         media={
           <Deferred ratio="1245 / 1556">
           <picture>

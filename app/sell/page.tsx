@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import CinematicSection from "@/components/v3/CinematicSection";
-import Feature, { FeaturePhoto } from "@/components/v3/Feature";
+import Feature from "@/components/v3/Feature";
 import { Actions, Body, Btn, Group, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
 import { feature, featureImages, frames, palette } from "@/lib/v3";
 
@@ -25,7 +25,7 @@ export default function SellPage() {
         </PhotoInner>
       </CinematicSection>
 
-      <Feature base={feature.sell} hue={palette.sell.hue} mediaSide="left" textAlign="right" faint={featureImages.sell} media={<FeaturePhoto img={featureImages.sell} />}>
+      <Feature base={feature.sell} hue={palette.sell.hue} photoSide="left" textAlign="right" photo={featureImages.sell}>
         <H2>{"You do not have to fix everything first."}</H2>
         <Group>
           <Body>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import CinematicSection from "@/components/v3/CinematicSection";
-import Feature, { FeaturePhoto } from "@/components/v3/Feature";
+import Feature from "@/components/v3/Feature";
 import { Actions, Body, Btn, Group, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
 import { feature, featureImages, frames, palette } from "@/lib/v3";
 
@@ -26,7 +26,7 @@ export default function BuyPage() {
         </PhotoInner>
       </CinematicSection>
 
-      <Feature className="v3-feature-buy" base={feature.buy} hue={palette.buy.hue} mediaSide="right" textAlign="left" faint={featureImages.buy} media={<FeaturePhoto img={featureImages.buy} />}>
+      <Feature className="v3-feature-buy" base={feature.buy} hue={palette.buy.hue} photoSide="right" textAlign="left" photo={featureImages.buy}>
         <H2>{"A buying experience you're satisfied with"}</H2>
         <Group>
           <Body>

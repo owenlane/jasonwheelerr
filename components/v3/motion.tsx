@@ -84,65 +84,30 @@ export function Rise({ children, className = "", delay = 0, as: Tag = "div", att
   );
 }
 
-/** Split-line heading reveal for below-hero headings. One semantic heading; wrappers released after the reveal. */
+/**
+ * JWV3-FINAL-3 NO-SHIFT-REVEAL: stable semantic heading. The text tree is never
+ * rewritten (no line splitting); only the whole heading translates 12px → 0 once,
+ * opacity stays 1. Visible at mount → never armed. Reduced motion/no-JS → static.
+ * Focus entering the heading cancels the motion.
+ */
 export function RevealHeading({ as: Tag = "h2", text, className = "", id }: { as?: "h2" | "h3"; text: string; className?: string; id?: string }) {
   const ref = useRef<HTMLHeadingElement>(null);
-  const [phase, setPhase] = useState<"plain" | "measure" | "armed" | "in">("plain");
-  const [lines, setLines] = useState<string[]>([]);
+  const [phase, setPhase] = useState<"plain" | "armed" | "in">("plain");
   const reduced = useReducedMotion();
-  const words = text.split(/\s+/);
-
-  useEffect(() => {
+  useIso(() => {
     const el = ref.current;
     if (!el || reducedQuery().matches || visibleNow(el)) return;
-    let cancelled = false;
-    document.fonts.ready.then(() => {
-      if (cancelled || !ref.current || visibleNow(ref.current)) return;
-      setPhase("measure");
-    });
-    return () => { cancelled = true; };
-  }, []);
-
-  useIso(() => {
-    if (phase !== "measure" || !ref.current) return;
-    const spans = [...ref.current.querySelectorAll<HTMLElement>("[data-w]")];
-    const out: string[] = [];
-    let top = -1;
-    spans.forEach((s) => {
-      const w = (s.textContent ?? "").trim();
-      if (!out.length || Math.abs(s.offsetTop - top) > 2) { out.push(w); top = s.offsetTop; } else out[out.length - 1] += " " + w;
-    });
-    // Never arm without measured lines: an empty heading must not be possible.
-    if (!out.length || out.join(" ") !== words.join(" ")) { setPhase("plain"); return; }
-    setLines(out);
     setPhase("armed");
-  }, [phase]);
-
-  useEffect(() => {
-    if (phase !== "armed" || !ref.current) return;
-    const el = ref.current;
-    const off = onEnter(el, () => {
-      setPhase("in");
-      window.setTimeout(() => setPhase("plain"), 600 + Math.min(180, 60 * lines.length) + 50);
-    });
-    const resize = () => setPhase("measure");
-    window.addEventListener("resize", resize);
-    return () => { off(); window.removeEventListener("resize", resize); };
-  }, [phase, lines.length]);
-
+    let timer = 0;
+    const off = onEnter(el, () => { setPhase("in"); timer = window.setTimeout(() => setPhase("plain"), 650); });
+    const focus = () => { off(); window.clearTimeout(timer); setPhase("plain"); };
+    el.addEventListener("focusin", focus);
+    return () => { off(); window.clearTimeout(timer); el.removeEventListener("focusin", focus); };
+  }, []);
   useEffect(() => { if (reduced) setPhase("plain"); }, [reduced]);
-
-  let content: ReactNode = text;
-  if (phase === "measure") content = words.map((w, i) => <span key={i} data-w={i}>{(i ? " " : "") + w}</span>);
-  if ((phase === "armed" || phase === "in") && lines.length)
-    content = lines.map((l, i) => (
-      <span key={i} className="v3-line">
-        <span className="v3-line-in" style={{ "--i": i } as CSSProperties}>{(i ? " " : "") + l}</span>
-      </span>
-    ));
   return (
     <Tag ref={ref} id={id} className={className} data-reveal={phase}>
-      {content}
+      {text}
     </Tag>
   );
 }
@@ -216,20 +181,3 @@ export function KenBurns({ children, className = "" }: { children: ReactNode; cl
   );
 }
 
-/** Stacked FEATURE: records where the text block ends so the faint still tapers to 0 before the media. */
-export function FeatureFit() {
-  const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    const section = ref.current?.closest<HTMLElement>(".v3-feature");
-    const text = section?.querySelector<HTMLElement>(".v3-feature-text");
-    if (!section || !text) return;
-    const ro = new ResizeObserver(() => {
-      const end = text.getBoundingClientRect().bottom - section.getBoundingClientRect().top;
-      section.style.setProperty("--feat-text-end", `${Math.round(end)}px`);
-    });
-    ro.observe(section);
-    ro.observe(text);
-    return () => ro.disconnect();
-  }, []);
-  return <span ref={ref} hidden />;
-}

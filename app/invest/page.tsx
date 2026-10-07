@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import CinematicSection from "@/components/v3/CinematicSection";
-import PhotoStill from "@/components/v3/PhotoStill";
+import Feature from "@/components/v3/Feature";
 import { Actions, Body, Btn, Group, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
 import { Rise } from "@/components/v3/motion";
 import { CinematicVideo } from "@/components/VideoPlayer";
 import VideoEmpty from "@/components/VideoEmpty";
 import { person } from "@/lib/site";
 import { featured, fetchVideos } from "@/lib/youtube";
-import { frames, palette } from "@/lib/v3";
+import { feature, featureImages, frames, palette } from "@/lib/v3";
 
 export const revalidate = 3600;
 export const metadata: Metadata = {
@@ -33,22 +33,18 @@ export default async function InvestPage() {
         </PhotoInner>
       </CinematicSection>
 
-      <PhotoStill frame={frames.invest2} hue={palette.invest.hue} align="C" className="v3-invest2">
-        <PhotoInner>
-          <div className="v3-text">
-            <H2>{"What do you want the property to do?"}</H2>
-            <Group>
-              <Body>
-                {
-                  "A property to hold and a house to renovate for resale call for different searches. Your budget, timing, and the work you want to take on help define what fits."
-                }
-              </Body>
-            </Group>
-          </div>
-        </PhotoInner>
-      </PhotoStill>
+      <Feature base={feature.invest} hue={palette.invest.hue} photoSide="right" textAlign="left" photo={featureImages.invest}>
+        <H2>{"What do you want the property to do?"}</H2>
+        <Group>
+          <Body>
+            {
+              "A property to hold and a house to renovate for resale call for different searches. Your budget, timing, and the work you want to take on help define what fits."
+            }
+          </Body>
+        </Group>
+      </Feature>
 
-      <Solid colors={{ ...palette.invest.s3, hue: "21 42 50" }} align="L">
+      <Solid colors={{ ...palette.invest.s3, hue: "21 42 50" }} align="C" className="v3-invest-videos">
         <div className="v3-text">
           <H2>{"See the condition on film."}</H2>
           <Group>

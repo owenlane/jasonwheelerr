@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import CinematicSection from "@/components/v3/CinematicSection";
-import Feature, { FeaturePhoto } from "@/components/v3/Feature";
+import Feature from "@/components/v3/Feature";
 import { Actions, Body, Btn, Group, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
 import PersonalVideoCollection from "@/components/PersonalVideoCollection";
 import { feature, featureImages, frames, palette } from "@/lib/v3";
@@ -24,7 +24,7 @@ export default function AboutPage() {
         </PhotoInner>
       </CinematicSection>
 
-      <Feature base={feature.about} hue={palette.about.hue} mediaSide="right" textAlign="left" faint={featureImages.about} media={<FeaturePhoto img={featureImages.about} />}>
+      <Feature base={feature.about} hue={palette.about.hue} photoSide="right" textAlign="left" photo={featureImages.about}>
         <H2>{"A practical approach to real estate"}</H2>
         <Group>
           <Body>{"Nevada real estate salesperson S.169016, with Blue Diamond Realty."}</Body>

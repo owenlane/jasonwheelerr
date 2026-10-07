@@ -41,6 +41,7 @@ export const feature = {
   renovations2: "#7D3D17",
   renovations3: "#7A3423",
   about: "#124486",
+  invest: "#152A32", // P2-R6: existing Invest overlay hue made opaque
 } as const;
 
 /** JWV3-FINAL-2 PINK: approved #EB52B1 is the darkest (bottom) stop. */
@@ -145,7 +146,6 @@ export const frames = {
   // Reviews (JWV3-FINAL-2 R88): single C2 wide still, Ken Burns; no crop-fade.
   reviews: v2("calico", 1, [0.7, 0.32]),
   // Invest § 2 (JWV3-FINAL-2 R80/R82): full-bleed supplied still, #152A32 at 0.78 text / 0.38 image-only.
-  invest2: frame("feature", "page4section2image", "62% 50%", [0.78, 0.38]),
   // Contact: approved single-source exception — M wide → tighter crop.
   contact: [v2("speedway", 0, [0.72, 0.36]), v2("speedway", 0, [0.72, 0.36], TIGHT)],
 } satisfies Record<string, CineFrame[] | CineFrame>;
@@ -172,6 +172,7 @@ export const featureImages = {
   sell: featureImage("feature", "page3section2image", "62% 45%", WIDTHS, 1920, 1080),
   renovations2: featureImage("feature", "page5section2image", "50% 55%", WIDTHS, 1920, 1080),
   renovations3: featureImage("feature", "page5section3image", "68% 55%", WIDTHS, 1920, 1080),
+  invest: featureImage("feature", "page4section2image", "62% 50%", WIDTHS, 1920, 1080),
   // R84: verified daytime Allegiant (allegiant-stadium-2, sha256 ce3da3c4…0214).
   about: featureImage("arena", "allegiant-stadium-2-cinematic-backdrop", "40% 50%", WIDTHS, 1920, 1080),
 };

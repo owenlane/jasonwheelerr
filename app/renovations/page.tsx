@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import CinematicSection from "@/components/v3/CinematicSection";
-import Feature, { FeaturePhoto } from "@/components/v3/Feature";
+import Feature from "@/components/v3/Feature";
 import { Actions, Body, Btn, Group, H1, H2, PhotoInner, Solid } from "@/components/v3/sections";
 import { feature, featureImages, frames, palette } from "@/lib/v3";
 
@@ -26,7 +26,7 @@ export default function RenovationsPage() {
         </PhotoInner>
       </CinematicSection>
 
-      <Feature base={feature.renovations2} hue={palette.renovations.hue} mediaSide="left" textAlign="right" faint={featureImages.renovations2} media={<FeaturePhoto img={featureImages.renovations2} />}>
+      <Feature base={feature.renovations2} hue={palette.renovations.hue} photoSide="left" textAlign="right" photo={featureImages.renovations2}>
         <H2>{"Sell, rent, or hold."}</H2>
         <Group>
           <Body>
@@ -37,7 +37,7 @@ export default function RenovationsPage() {
         </Group>
       </Feature>
 
-      <Feature base={feature.renovations3} hue={palette.renovations.hue} mediaSide="right" textAlign="left" faint={featureImages.renovations3} media={<FeaturePhoto img={featureImages.renovations3} />}>
+      <Feature base={feature.renovations3} hue={palette.renovations.hue} photoSide="right" textAlign="left" photo={featureImages.renovations3}>
         <H2>{"The right people for the work."}</H2>
         <Group>
           <Body>

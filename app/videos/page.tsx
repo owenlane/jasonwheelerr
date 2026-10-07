@@ -27,7 +27,7 @@ export default async function VideosPage() {
         </PhotoInner>
       </CinematicSection>
 
-      <Solid colors={{ ...palette.videos.s2, hue: "11 27 46" }} align="C">
+      <Solid colors={{ ...palette.videos.s2, hue: "11 27 46" }} align="C" className="v3-videos-library">
         <div className="v3-text">
           <H2>{"Take a look through the houses."}</H2>
           <Group>
