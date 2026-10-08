@@ -54,7 +54,7 @@ export default async function HomePage() {
         <Group>
           <Body>
             {
-              "I am Jason Wheeler, a Las Vegas resident of 25 years, and I have been a real estate professional for 30 years. I started out in the industry in 1996 in sub-prime lending, originating mortgage loans. I have been helping buyers, sellers, landlords and tenants accomplish their real estate goals since 2001 as a licensed Realtor. For more than 10 years, I have also been flipping houses in Las Vegas. When it comes to the City of Las Vegas, you couldn’t find a better guy to help you with all your Real Estate needs. Real estate is a business I take very seriously, prioritizing your needs and success. I know the entire Vegas Valley as if I were Vegas born."
+              "I’m Jason Wheeler, a Las Vegas resident of 25 years, and I have been a real estate professional for 30 years. I started out in the industry in 1996 in sub-prime lending, originating mortgage loans. I’ve been helping buyers, sellers, landlords and tenants accomplish their real estate goals since 2001 as a licensed Realtor. For more than 10 years, I’ve also been flipping houses in Las Vegas. When it comes to the City of Las Vegas, you couldn’t find a better guy to help you with all your Real Estate needs. Real estate is a business I take very seriously, prioritizing your needs and success. I know the entire Vegas Valley as if I were Vegas born."
             }
           </Body>
         </Group>

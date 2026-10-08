@@ -71,7 +71,7 @@ export default function InquiryForm({ initialIntent = "general" }: { initialInte
     return (
       <div ref={doneRef} tabIndex={-1} role="status" className="mt-10 border border-ink p-8 sm:p-10">
         <p className="microlabel">Received</p>
-        <h3 className="mt-4 font-display text-xl">Your message has reached me.</h3>
+        <h3 className="mt-4 font-display text-xl">Thank you! Your message has been received.</h3>
         <p className="measure mt-5 text-[0.9375rem] leading-relaxed quiet">
           Thank you for getting in touch. You can also reach me at{" "}
           <a href={person.phoneHref} className="link-line text-ink">{person.phone}</a>.
@@ -245,7 +245,7 @@ export default function InquiryForm({ initialIntent = "general" }: { initialInte
           disabled={status === "sending"}
           className="inline-flex min-h-12 items-center bg-ink px-8 text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-field transition-colors hover:bg-support disabled:opacity-60"
         >
-          {status === "sending" ? "Sending" : "Send to me"}
+          {status === "sending" ? "Sending" : "Send Inquiry"}
         </button>
       </div>
     </form>
