@@ -49,7 +49,7 @@ export default function SiteFooter() {
           </nav>
 
           <div>
-            <p className="microlabel text-accent">Reach Jason</p>
+            <p className="microlabel text-accent">Reach me</p>
             <ul className="mt-5 space-y-3 text-[0.9375rem]">
               <li>
                 <a href={person.phoneHref} className="link-line text-field/85">{person.phone}</a>

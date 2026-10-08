@@ -18,7 +18,7 @@ export default function AboutPage() {
       <CinematicSection frames={frames.about} hue={palette.about.hue} align="C" priority>
         <PhotoInner>
           <div className="v3-text">
-            <H1>{"More about Jason"}</H1>
+            <H1>{"More about me"}</H1>
             <Body>{"30 years of real estate experience, helping buyers, sellers, investors, and owners with their property plans."}</Body>
           </div>
         </PhotoInner>
