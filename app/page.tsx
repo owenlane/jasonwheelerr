@@ -54,7 +54,7 @@ export default async function HomePage() {
         <Group>
           <Body>
             {
-              "Jason Wheeler, a Las Vegas resident of 25 years, has been a real estate professional for 30 years. Jason started in the industry in 1996 in sub-prime lending, originating mortgage loans. He has been helping buyers, sellers, landlords and tenants accomplish their real estate goals since 2001 as a licensed Realtor. Jason has also been flipping houses for more than 10 years in Las Vegas. When it comes to the City of Las Vegas, you couldn’t find a better guy to help you with all your Real Estate needs. Jason takes the business of real estate very seriously, prioritizing your needs and success. Jason knows the entire Vegas Valley as if he were Vegas born."
+              "I’m Jason Wheeler, a Las Vegas resident of 25 years, and I have been a real estate professional for 30 years. I started out in the industry in 1996 in sub-prime lending, originating mortgage loans. I’ve been helping buyers, sellers, landlords and tenants accomplish their real estate goals since 2001 as a licensed Realtor. For more than 10 years, I’ve also been flipping houses in Las Vegas. When it comes to the City of Las Vegas, you couldn’t find a better guy to help you with all your Real Estate needs. Real estate is a business I take very seriously, prioritizing your needs and success. I know the entire Vegas Valley as if I were Vegas born."
             }
           </Body>
         </Group>
@@ -62,7 +62,7 @@ export default async function HomePage() {
 
       <Solid colors={palette.home.videos} background={PINK}>
         <div className="v3-text">
-          <H2>{"Jason's YouTube Videos"}</H2>
+          <H2>{"My YouTube Videos"}</H2>
           <Group>
             <Body>{"A look at the houses, their layouts, and their condition when filmed."}</Body>
           </Group>

@@ -8,7 +8,7 @@ export default function NotFound() {
       <div className="page-intro">
         <Display level={1}>That page isn&rsquo;t here</Display>
         <p className="measure mt-6 text-[1.0625rem] leading-[1.7] quiet">
-          Choose a section below to keep looking, or get in touch with Jason.
+          Choose a section below to keep looking, or get in touch with me.
         </p>
         <ul className="mt-10 grid gap-x-10 sm:grid-cols-2">
           {nav.map((item) => (
